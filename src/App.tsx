@@ -312,7 +312,15 @@ export default function App() {
           </button>
       </div>
 
-
+      {/* Fixed Scroll Down Ping */}
+      {started && (
+        <div className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ${uiVisible && activeSection === 'intro' ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+           <div className="animate-bounce flex flex-col items-center text-white/50 cursor-pointer" onClick={() => scrollToSection('info')}>
+              <span className="text-[10px] uppercase tracking-[0.2em] mb-2">Scroll Down</span>
+              <svg className="w-6 h-6 border-2 border-white/20 rounded-full p-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+           </div>
+        </div>
+      )}
 
       {/* --- SCROLLING FOREGROUND LAYER --- */}
       {started && (
