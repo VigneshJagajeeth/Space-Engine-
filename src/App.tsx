@@ -167,7 +167,7 @@ export default function App() {
     setSx(1); setSy(1); setSz(1);
   };
 
-  const handleStart = () => {
+  const handleSplashClick = () => {
     // Browser required user interaction for fullscreen and audio
     try {
       if (document.documentElement.requestFullscreen) {
@@ -182,14 +182,13 @@ export default function App() {
         audioRef.current.volume = 0.5;
         audioRef.current.play().catch(e => console.log("Audio failed:", e));
     }
+  };
 
-    // Fade to home page, then auto-trigger start
+  const handleExperienceClick = () => {
+    setStarted(true);
     setTimeout(() => {
-        setStarted(true);
-        setTimeout(() => {
-            setUiVisible(true);
-        }, 2000);
-    }, 1500); // Wait for splash to fade before transitioning
+        setUiVisible(true);
+    }, 2000);
   };
 
   const handleResetApp = () => {
@@ -223,7 +222,7 @@ export default function App() {
       </div>
 
       {/* Native HTML5 Audio Player */}
-      <audio ref={audioRef} src="/bgm.mp3" loop />
+      <audio ref={audioRef} src="/lone stars.mp3" loop />
 
       {/* 3D Global Space View / Boxed View */}
       <div className={`fixed z-0 pointer-events-none transition-all duration-[400ms] ease-out overflow-hidden flex items-center justify-center
@@ -240,7 +239,7 @@ export default function App() {
       </div>
 
       {/* --- FIXED UI FRAME LAYER --- */}
-      <header className={`fixed top-0 left-0 right-0 z-50 flex items-start justify-between p-6 lg:p-10 pointer-events-none transition-all duration-1000 ${started ? (uiVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8') : 'opacity-100 translate-y-0'}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 flex items-start justify-between p-6 lg:p-10 pointer-events-none transition-all duration-1000 ${showSplash ? 'opacity-0 -translate-y-8' : 'opacity-100 translate-y-0'}`}>
         <div>
           <h1 
             onClick={handleResetApp}
@@ -286,7 +285,7 @@ export default function App() {
 
       {/* --- SPLASH SCREEN --- */}
       <div 
-        onClick={handleStart}
+        onClick={handleSplashClick}
         className={`fixed inset-0 z-[60] flex flex-col items-center justify-center transition-opacity duration-1000 cursor-pointer ${showSplash ? 'opacity-100 pointer-events-auto bg-[#050507]/60 backdrop-blur-sm' : 'opacity-0 pointer-events-none'}`}
       >
           <div className="text-white flex flex-col items-center">
@@ -300,8 +299,8 @@ export default function App() {
           </div>
       </div>
 
-      {/* --- START PAGE LAYER (Now automatically skipped after click) --- */}
-      <div className={`absolute inset-0 flex flex-col items-center justify-center z-20 px-4 text-center transition-all duration-1000 transform ${showSplash ? 'opacity-0 scale-95 pointer-events-none' : (uiVisible ? 'opacity-0 -translate-y-24 pointer-events-none' : (started ? 'opacity-0 pointer-events-none' : 'opacity-100 scale-100 pointer-events-none animate-fade-in-up'))}`}>
+      {/* --- START PAGE LAYER --- */}
+      <div className={`absolute inset-0 flex flex-col items-center justify-center z-20 px-4 text-center transition-all duration-1000 transform ${showSplash ? 'opacity-0 scale-95 pointer-events-none' : (uiVisible ? 'opacity-0 -translate-y-24 pointer-events-none' : (started ? 'opacity-0 pointer-events-none' : 'opacity-100 scale-100 pointer-events-auto delay-500 animate-fade-in-up'))}`}>
           {/* The sun pointer acts as a backlight here since it tracks the mouse in 3D right behind the text layer */}
           <div className="relative inline-block mt-16 md:mt-0">
              <h2 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-400 via-slate-600 to-slate-800 tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] p-4 leading-[1.1] md:leading-[1.1]">
@@ -309,7 +308,12 @@ export default function App() {
              </h2>
           </div>
           
-          {/* Auto-skipped Experience button */}
+          <button 
+            onClick={handleExperienceClick}
+            className="mt-12 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-[#38bdf8]/50 rounded-full text-white/80 hover:text-white tracking-[0.2em] font-light text-sm uppercase transition-all duration-500 backdrop-blur-md hover:shadow-[0_0_30px_rgba(56,189,248,0.3)] hover:-translate-y-1"
+          >
+            Experience
+          </button>
       </div>
 
       {/* Fixed Scroll Down Ping */}

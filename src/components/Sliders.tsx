@@ -30,7 +30,7 @@ export const Slider = ({ label, min, max, step, value, onChange, unit = "" }: an
                 style={{ left: `0%`, width: `${((value - min) / (max - min) * 100)}%` }} 
             />
             <div 
-                className="absolute w-[40px] h-[4px] bg-[#38bdf8] pointer-events-none -translate-y-1/2 -translate-x-1/2" 
+                className="absolute w-[12px] h-[12px] bg-white rounded-full pointer-events-none -translate-y-1/2 -translate-x-1/2 shadow-[0_0_10px_rgba(56,189,248,0.8)]" 
                 style={{ left: `${((value - min) / (max - min) * 100)}%` }} 
             />
         </div>
