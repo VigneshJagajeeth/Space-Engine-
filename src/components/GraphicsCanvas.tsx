@@ -31,7 +31,7 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
 
     // Generate an imperfect, rocky geometry with higher detail
     const geometry = useMemo(() => {
-        const geo = new THREE.IcosahedronGeometry(1.5, 32);
+        const geo = new THREE.IcosahedronGeometry(1.5, 128);
         const posAttribute = geo.attributes.position;
         const v = new THREE.Vector3();
         for(let i = 0; i < posAttribute.count; i++){
