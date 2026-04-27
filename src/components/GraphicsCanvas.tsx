@@ -74,12 +74,17 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
     useFrame((state, delta) => {
         if (!groupRef.current) return;
 
+        // Use frame-rate independent exponential smoothing to prevent overshoot on lag spikes
+        const safeDelta = Math.min(delta, 0.1);
+        const dampAlphaIn = 1 - Math.exp(-5 * safeDelta);
+        const dampAlphaOut = 1 - Math.exp(-8 * safeDelta);
+
         if (started) {
-            animScale.current = THREE.MathUtils.lerp(animScale.current, 1, delta * 2.5);
-            animPos.current.lerp(new THREE.Vector3(0, 0, 0), delta * 2.5);
+            animScale.current = THREE.MathUtils.lerp(animScale.current, 1, dampAlphaIn);
+            animPos.current.lerp(new THREE.Vector3(0, 0, 0), dampAlphaIn);
         } else {
-            animScale.current = THREE.MathUtils.lerp(animScale.current, 0.001, delta * 4);
-            animPos.current.lerp(new THREE.Vector3(0, -50, -100), delta * 4);
+            animScale.current = THREE.MathUtils.lerp(animScale.current, 0.001, dampAlphaOut);
+            animPos.current.lerp(new THREE.Vector3(0, -50, -100), dampAlphaOut);
         }
 
         const m = new THREE.Matrix4();
@@ -91,8 +96,8 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
         );
         groupRef.current.matrixAutoUpdate = false;
         
-        // Add a slight base rotation for dramatic effect 
-        const baseRot = new THREE.Matrix4().makeRotationY(Date.now() * 0.0002);
+        // Add a slight base rotation for dramatic effect
+        const baseRot = new THREE.Matrix4().makeRotationY(state.clock.elapsedTime * 0.2);
         m.multiply(baseRot);
         
         // Apply entry zoom/float animation
@@ -156,7 +161,7 @@ const PointerLight = () => {
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
     
-    useFrame(({ camera }) => {
+    useFrame(({ camera }, delta) => {
         if (groupRef.current) {
             // Convert normalized window pointer coordinates to a world position
             const vec = new THREE.Vector3(globalMouse.current.x, globalMouse.current.y, 0.5);
@@ -171,8 +176,10 @@ const PointerLight = () => {
             // Calculate real-world position exactly beneath the mouse at Z=4
             const pos = camera.position.clone().add(vec.multiplyScalar(distance));
             
-            // Instantly snap the group (light + visual sun) to this position
-            groupRef.current.position.copy(pos);
+            // Smoothly interpolate the light towards the target position
+            const safeDelta = Math.min(delta, 0.1);
+            const dampAlpha = 1 - Math.exp(-8 * safeDelta);
+            groupRef.current.position.lerp(pos, dampAlpha);
         }
     });
 
