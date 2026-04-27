@@ -37,9 +37,9 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
         for(let i = 0; i < posAttribute.count; i++){
             v.fromBufferAttribute(posAttribute, i);
             
-            // Generate multiple layers of noise for a highly lumpy asteroid shape
-            const noise1 = Math.sin(v.x * 3) * Math.cos(v.y * 3) * Math.sin(v.z * 3) * 0.25;
-            const noise2 = Math.sin(v.x * 8) * Math.sin(v.y * 8 + v.z) * 0.1;
+            // Generate multiple layers of noise for a subtle, less wavy asteroid shape
+            const noise1 = Math.sin(v.x * 3) * Math.cos(v.y * 3) * Math.sin(v.z * 3) * 0.1;
+            const noise2 = Math.sin(v.x * 8) * Math.sin(v.y * 8 + v.z) * 0.05;
             
             // Uneven scaling to make it less spherical and more oblong/rocky
             v.normalize().multiplyScalar(1.5 + noise1 + noise2);
