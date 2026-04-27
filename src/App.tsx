@@ -194,10 +194,6 @@ export default function App() {
   const handleResetApp = () => {
     setStarted(false);
     setUiVisible(false);
-    if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-    }
     resetTransforms();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setActiveAlign('center');
