@@ -9,6 +9,7 @@ interface GraphicsCanvasProps {
     started: boolean;
     tx: number; ty: number; tz: number;
     rotX: number; rotY: number; rotZ: number;
+    isLightOff?: boolean;
 }
 
 // A dynamic rocky Asteroid
@@ -129,7 +130,7 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
 };
 
 // Interactive Light tracking the mouse pointer perfectly over the 3D canvas
-const PointerLight = () => {
+const PointerLight = ({ active }: { active: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
     const globalMouse = useRef(new THREE.Vector2(0, 0));
 
@@ -168,19 +169,29 @@ const PointerLight = () => {
     return (
         <group ref={groupRef}>
             {/* Main lighting emitted by the sun, dimmed down so rock is not blown out */}
-            <pointLight castShadow color="#ffddaa" intensity={300} distance={50} decay={1.5} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
-            <pointLight castShadow color="#ffffff" intensity={150} distance={20} decay={2} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
+            <pointLight castShadow color="#ffddaa" intensity={active ? 300 : 0} distance={50} decay={1.5} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
+            <pointLight castShadow color="#ffffff" intensity={active ? 150 : 0} distance={20} decay={2} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
         </group>
     );
 };
 
-export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started, tx, ty, tz, rotX, rotY, rotZ }) => {
+export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started, tx, ty, tz, rotX, rotY, rotZ, isLightOff }) => {
     return (
         <div className="absolute inset-0 w-full h-full">
             <Canvas shadows camera={{ position: [0, 0, 10], fov: 45 }} dpr={[1, 1.5]}>
                 {/* Low ambient light for cinematic effect, reliant on Mouse Light */}
-                <ambientLight intensity={0.05} />
-                <PointerLight />
+                {!isLightOff && <ambientLight intensity={0.05} />}
+                
+                {/* Simulated Starlight when pointer light is off */}
+                {isLightOff && (
+                    <group>
+                        <directionalLight color="#a3e6ff" intensity={0.5} position={[10, 5, -10]} castShadow shadow-bias={-0.001} />
+                        <directionalLight color="#ffccaa" intensity={0.3} position={[-10, -5, 10]} />
+                        <ambientLight intensity={0.15} color="#ffffff" />
+                    </group>
+                )}
+
+                <PointerLight active={!isLightOff} />
                 
                 {/* Immersive 3D Galaxy Field */}
                 {/* Background stars removed from here to keep them full screen */}

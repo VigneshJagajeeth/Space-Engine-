@@ -109,7 +109,7 @@ const BackgroundStars = () => (
   </div>
 );
 
-const SunCursor = () => {
+const SunCursor = ({ visible = true }: { visible?: boolean }) => {
   const cursorRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -125,7 +125,7 @@ const SunCursor = () => {
   return (
     <div 
       ref={cursorRef} 
-      className="fixed top-0 left-0 z-[9999] pointer-events-none will-change-transform"
+      className={`fixed top-0 left-0 z-[9999] pointer-events-none will-change-transform transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
       style={{
         width: '40px',
         height: '40px',
@@ -144,7 +144,18 @@ export default function App() {
   const [started, setStarted] = useState(false);
   const [uiVisible, setUiVisible] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [isLightOff, setIsLightOff] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'l') {
+        setIsLightOff(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   
   // We cannot auto-fade because we NEED the user to click to enable Audio and Fullscreen
   
@@ -207,7 +218,7 @@ export default function App() {
 
   return (
     <div className={`relative min-h-[100dvh] bg-[#050507] text-[#ffffff] font-['Helvetica_Neue',Arial,sans-serif] cursor-none ${!started ? 'overflow-hidden h-[100dvh]' : ''}`}>
-      <SunCursor />
+      <SunCursor visible={!isLightOff} />
       <FpsCounter visible={uiVisible} />
       {/* --- FIXED BACKGROUND LAYER --- */}
       <div className="fixed inset-0 z-0 pointer-events-none">
@@ -231,6 +242,7 @@ export default function App() {
           started={started}
           tx={tx} ty={ty} tz={tz}
           rotX={rotX} rotY={rotY} rotZ={rotZ}
+          isLightOff={isLightOff}
         />
 
         {/* Matrix HUD inside the boxed view */}
