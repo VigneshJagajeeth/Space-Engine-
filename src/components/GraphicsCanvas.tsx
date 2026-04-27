@@ -11,6 +11,27 @@ interface GraphicsCanvasProps {
     rotX: number; rotY: number; rotZ: number;
 }
 
+// A glowing, refractive glass crystal shard
+const Crystal = ({ position, rotation, scale = 1 }: { position: [number, number, number], rotation: [number, number, number], scale?: number }) => (
+    <mesh position={position} rotation={rotation} scale={[scale, scale * 3.5, scale]} castShadow receiveShadow>
+        <octahedronGeometry args={[0.25, 0]} />
+        <MeshTransmissionMaterial 
+            backside
+            samples={4}
+            thickness={0.8}
+            chromaticAberration={0.15}
+            anisotropy={0.2}
+            distortion={0.3}
+            distortionScale={0.5}
+            temporalDistortion={0.1}
+            iridescence={1}
+            iridescenceIOR={1.5}
+            iridescenceThicknessRange={[0, 1400]}
+            color="#c084fc" 
+        />
+    </mesh>
+);
+
 // A dynamic rocky Asteroid
 const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
@@ -135,6 +156,11 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
                     envMapIntensity={0.3}
                 />
             </mesh>
+
+            {/* Glass Crystals embedded in the asteroid surface */}
+            <Crystal position={[1.2, 0.8, 0.4]} rotation={[0.4, 0, -0.6]} scale={1.2} />
+            <Crystal position={[-0.9, 1.1, -0.7]} rotation={[-0.3, 0.5, 0.4]} scale={0.8} />
+            <Crystal position={[0.4, -1.3, 0.8]} rotation={[0.6, -0.2, 0.3]} scale={1.5} />
 
             {/* Custom stylized local axes indicating transformations happen relative to the asteroid */}
             <group>
