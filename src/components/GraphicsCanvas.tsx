@@ -11,23 +11,21 @@ interface GraphicsCanvasProps {
     rotX: number; rotY: number; rotZ: number;
 }
 
-// A glowing, refractive glass crystal shard
+// A rough, natural mineral deposit
 const Crystal = ({ position, rotation, scale = 1 }: { position: [number, number, number], rotation: [number, number, number], scale?: number }) => (
-    <mesh position={position} rotation={rotation} scale={[scale, scale * 3.5, scale]} castShadow receiveShadow>
-        <octahedronGeometry args={[0.25, 0]} />
+    <mesh position={position} rotation={rotation} scale={[scale, scale * 2.5, scale * 1.2]} castShadow receiveShadow>
+        <dodecahedronGeometry args={[0.3, 0]} />
         <MeshTransmissionMaterial 
             backside
             samples={4}
-            thickness={0.8}
-            chromaticAberration={0.15}
-            anisotropy={0.2}
-            distortion={0.3}
-            distortionScale={0.5}
-            temporalDistortion={0.1}
-            iridescence={1}
-            iridescenceIOR={1.5}
-            iridescenceThicknessRange={[0, 1400]}
-            color="#c084fc" 
+            thickness={1.5}
+            roughness={0.4}
+            chromaticAberration={0.02}
+            anisotropy={0.1}
+            distortion={0.5}
+            distortionScale={1.0}
+            temporalDistortion={0.0}
+            color="#8b5cf6" 
         />
     </mesh>
 );
@@ -62,35 +60,8 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
             const noise1 = Math.sin(v.x * 3) * Math.cos(v.y * 3) * Math.sin(v.z * 3) * 0.15;
             const noise2 = Math.sin(v.x * 8) * Math.sin(v.y * 8 + v.z) * 0.05;
             
-            // Add multiple craters
-            const craters = [
-                { dir: new THREE.Vector3(1, 1, 1).normalize(), radius: 0.8, depth: 0.6 },
-                { dir: new THREE.Vector3(-1, 0.5, 1).normalize(), radius: 0.6, depth: 0.4 },
-                { dir: new THREE.Vector3(0, -1, -1).normalize(), radius: 1.0, depth: 0.7 },
-                { dir: new THREE.Vector3(1, -0.5, -0.5).normalize(), radius: 0.5, depth: 0.3 }
-            ];
-
-            let craterDepth = 0;
-            craters.forEach(crater => {
-                const dist = v.distanceTo(crater.dir.clone().multiplyScalar(1.5));
-                if (dist < crater.radius) {
-                    const x = dist / crater.radius; // 0 to 1
-                    // Realistic crater profile: steep bowl that smoothly transitions into a sharp rim
-                    if (x < 0.7) {
-                        // The inner bowl
-                        const bowlShape = 1 - Math.pow(x / 0.7, 2);
-                        craterDepth -= crater.depth * bowlShape;
-                    } else {
-                        // The raised outer rim
-                        const rimPos = (x - 0.7) / 0.3; // 0 to 1
-                        const rimShape = Math.sin(rimPos * Math.PI);
-                        craterDepth += (crater.depth * 0.3) * rimShape;
-                    }
-                }
-            });
-
             // Uneven scaling to make it less spherical and more oblong/rocky
-            v.normalize().multiplyScalar(1.5 + noise1 + noise2 + craterDepth);
+            v.normalize().multiplyScalar(1.5 + noise1 + noise2);
             v.x *= 1.3;
             v.y *= 0.8;
             v.z *= 1.1;
