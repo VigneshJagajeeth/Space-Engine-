@@ -222,7 +222,7 @@ export default function App() {
       </div>
 
       {/* Native HTML5 Audio Player */}
-      <audio ref={audioRef} src="/lone stars.mp3" loop />
+      <audio ref={audioRef} src="/bgm.mp3" loop />
 
       {/* 3D Global Space View / Boxed View */}
       <div className={`fixed z-0 pointer-events-none transition-all duration-[400ms] ease-out overflow-hidden flex items-center justify-center
