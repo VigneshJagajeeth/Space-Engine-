@@ -11,22 +11,6 @@ interface GraphicsCanvasProps {
     rotX: number; rotY: number; rotZ: number;
 }
 
-// A broad, blunt mineral deposit embedded in the rock
-const Crystal = ({ position, rotation, scale = 1 }: { position: [number, number, number], rotation: [number, number, number], scale?: number }) => (
-    <mesh position={position} rotation={rotation} scale={[scale * 1.5, scale * 0.4, scale * 1.2]} castShadow receiveShadow>
-        <dodecahedronGeometry args={[0.4, 0]} />
-        <meshPhysicalMaterial 
-            transmission={0.8}
-            thickness={1.5}
-            roughness={0.5}
-            metalness={0.2}
-            color="#8b5cf6" 
-            transparent={true}
-            envMapIntensity={1.0}
-        />
-    </mesh>
-);
-
 // A dynamic rocky Asteroid
 const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
@@ -53,9 +37,9 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
         for(let i = 0; i < posAttribute.count; i++){
             v.fromBufferAttribute(posAttribute, i);
             
-            // Generate multiple layers of noise
-            const noise1 = Math.sin(v.x * 3) * Math.cos(v.y * 3) * Math.sin(v.z * 3) * 0.15;
-            const noise2 = Math.sin(v.x * 8) * Math.sin(v.y * 8 + v.z) * 0.05;
+            // Generate multiple layers of noise for a highly lumpy asteroid shape
+            const noise1 = Math.sin(v.x * 3) * Math.cos(v.y * 3) * Math.sin(v.z * 3) * 0.25;
+            const noise2 = Math.sin(v.x * 8) * Math.sin(v.y * 8 + v.z) * 0.1;
             
             // Uneven scaling to make it less spherical and more oblong/rocky
             v.normalize().multiplyScalar(1.5 + noise1 + noise2);
@@ -124,11 +108,6 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
                     envMapIntensity={0.3}
                 />
             </mesh>
-
-            {/* Glass Crystals embedded in the asteroid surface */}
-            <Crystal position={[1.2, 0.8, 0.4]} rotation={[0.4, 0, -0.6]} scale={1.2} />
-            <Crystal position={[-0.9, 1.1, -0.7]} rotation={[-0.3, 0.5, 0.4]} scale={0.8} />
-            <Crystal position={[0.4, -1.3, 0.8]} rotation={[0.6, -0.2, 0.3]} scale={1.5} />
 
             {/* Custom stylized local axes indicating transformations happen relative to the asteroid */}
             <group>
