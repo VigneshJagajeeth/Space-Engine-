@@ -11,21 +11,18 @@ interface GraphicsCanvasProps {
     rotX: number; rotY: number; rotZ: number;
 }
 
-// A rough, natural mineral deposit
+// A broad, blunt mineral deposit embedded in the rock
 const Crystal = ({ position, rotation, scale = 1 }: { position: [number, number, number], rotation: [number, number, number], scale?: number }) => (
-    <mesh position={position} rotation={rotation} scale={[scale, scale * 2.5, scale * 1.2]} castShadow receiveShadow>
-        <dodecahedronGeometry args={[0.3, 0]} />
-        <MeshTransmissionMaterial 
-            backside
-            samples={4}
+    <mesh position={position} rotation={rotation} scale={[scale * 1.5, scale * 0.4, scale * 1.2]} castShadow receiveShadow>
+        <dodecahedronGeometry args={[0.4, 0]} />
+        <meshPhysicalMaterial 
+            transmission={0.8}
             thickness={1.5}
-            roughness={0.4}
-            chromaticAberration={0.02}
-            anisotropy={0.1}
-            distortion={0.5}
-            distortionScale={1.0}
-            temporalDistortion={0.0}
+            roughness={0.5}
+            metalness={0.2}
             color="#8b5cf6" 
+            transparent={true}
+            envMapIntensity={1.0}
         />
     </mesh>
 );
@@ -48,9 +45,9 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
     const animScale = useRef(0.001);
 
-    // Generate an imperfect, rocky geometry with higher detail
+    // Generate an imperfect, rocky geometry with optimal performance/detail ratio
     const geometry = useMemo(() => {
-        const geo = new THREE.IcosahedronGeometry(1.5, 128);
+        const geo = new THREE.IcosahedronGeometry(1.5, 64);
         const posAttribute = geo.attributes.position;
         const v = new THREE.Vector3();
         for(let i = 0; i < posAttribute.count; i++){
