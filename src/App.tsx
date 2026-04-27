@@ -4,6 +4,7 @@ import { InteractiveStarfield } from './components/InteractiveStarfield';
 import { GraphicsCanvas } from './components/GraphicsCanvas';
 import { Slider, SliderGroup } from './components/Sliders';
 import { computeTransformMatrix4 } from './lib/matrix4';
+import ReactPlayer from 'react-player';
 
 // Simple useInView hook
 function useInView(options: IntersectionObserverInit = {}) {
@@ -11,9 +12,10 @@ function useInView(options: IntersectionObserverInit = {}) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Override threshold to 0 and use a strict rootMargin to prevent overlapping active areas during fast scrolling
     const observer = new IntersectionObserver(([entry]) => {
       setIsIntersecting(entry.isIntersecting);
-    }, options);
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
 
     if (ref.current) {
       observer.observe(ref.current);
@@ -142,6 +144,16 @@ const SunCursor = () => {
 export default function App() {
   const [started, setStarted] = useState(false);
   const [uiVisible, setUiVisible] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const [playingAudio, setPlayingAudio] = useState(false);
+  
+  useEffect(() => {
+    // Auto fade splash screen to reveal the "Experience" button
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
   
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
@@ -164,6 +176,7 @@ export default function App() {
 
   const handleStart = () => {
     setStarted(true);
+    setPlayingAudio(true); // START YOUTUBE AUDIO
     setTimeout(() => {
       setUiVisible(true);
     }, 2000);
@@ -172,6 +185,7 @@ export default function App() {
   const handleResetApp = () => {
     setStarted(false);
     setUiVisible(false);
+    setPlayingAudio(false);
     resetTransforms();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setActiveAlign('center');
@@ -195,6 +209,17 @@ export default function App() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#1a1a2e_0%,#050507_80%)] opacity-70 mix-blend-multiply" />
       </div>
 
+      {/* Hidden Audio Player for Background Music */}
+      <ReactPlayer 
+        url="https://www.youtube.com/watch?v=m86mBRKZHY0" 
+        playing={playingAudio} 
+        loop={true} 
+        volume={0.5}
+        width="0" 
+        height="0" 
+        style={{ display: 'none' }} 
+      />
+
       {/* 3D Global Space View / Boxed View */}
       <div className={`fixed z-0 pointer-events-none transition-all duration-[400ms] ease-out overflow-hidden flex items-center justify-center
         ${!started || activeAlign === 'center' ? 'inset-0 border border-transparent rounded-none bg-transparent shadow-none' : ''}
@@ -214,11 +239,11 @@ export default function App() {
         <div>
           <h1 
             onClick={handleResetApp}
-            className="text-4xl lg:text-6xl font-black leading-[0.85] tracking-[-0.05em] uppercase m-0 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 drop-shadow-2xl flex flex-col cursor-pointer pointer-events-auto hover:opacity-80 transition-opacity"
+            className="text-2xl lg:text-4xl font-black leading-[0.85] tracking-[-0.05em] uppercase m-0 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 drop-shadow-2xl flex flex-col cursor-pointer pointer-events-auto hover:opacity-80 transition-opacity whitespace-nowrap"
             title="Reset App"
           >
             Cosmos
-            <span className="text-[#e879f9] tracking-widest mt-1 text-2xl lg:text-3xl bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#e879f9] opacity-80 mix-blend-screen drop-shadow-[0_0_15px_rgba(232,121,249,0.8)]">Engine</span>
+            <span className="text-[#e879f9] tracking-widest mt-1 text-lg lg:text-xl bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#e879f9] opacity-80 mix-blend-screen drop-shadow-[0_0_15px_rgba(232,121,249,0.8)]">Engine</span>
           </h1>
         </div>
       </header>
@@ -254,8 +279,16 @@ export default function App() {
         </div>
       )}
 
+      {/* --- SPLASH SCREEN --- */}
+      <div className={`fixed inset-0 z-[60] flex flex-col items-center justify-center transition-opacity duration-1000 ${showSplash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+          <div className="text-white flex flex-col items-center">
+             <span className="text-4xl lg:text-5xl mb-6 animate-bounce">🎧</span>
+             <h2 className="text-sm md:text-lg font-black uppercase tracking-[0.4em] text-white animate-pulse drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">Headphones Recommended</h2>
+          </div>
+      </div>
+
       {/* --- START PAGE LAYER --- */}
-      <div className={`absolute inset-0 flex flex-col items-center justify-center z-20 px-4 text-center transition-all duration-1000 transform ${uiVisible ? 'opacity-0 -translate-y-24 pointer-events-none' : (started ? 'opacity-0 pointer-events-none' : 'animate-fade-in-up pointer-events-auto')}`}>
+      <div className={`absolute inset-0 flex flex-col items-center justify-center z-20 px-4 text-center transition-all duration-1000 transform ${showSplash ? 'opacity-0 scale-95 pointer-events-none' : (uiVisible ? 'opacity-0 -translate-y-24 pointer-events-none' : (started ? 'opacity-0 pointer-events-none' : 'opacity-100 scale-100 pointer-events-auto delay-500 animate-fade-in-up'))}`}>
           {/* The sun pointer acts as a backlight here since it tracks the mouse in 3D right behind the text layer */}
           <div className="relative inline-block mt-16 md:mt-0">
              <h2 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-400 via-slate-600 to-slate-800 tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] p-4 leading-[1.1] md:leading-[1.1]">
@@ -383,14 +416,14 @@ export default function App() {
              </div>
           </VisibilityTracker>
 
-          {/* Footer Section */}
+          {/* Footer Section - Massive Bold Text Below Asteroid */}
           <VisibilityTracker
-             className="min-h-[50dvh] flex flex-col items-center justify-center pb-20 pointer-events-none text-center"
+             className="min-h-[100dvh] flex flex-col items-center justify-end pb-24 md:pb-32 pointer-events-none text-center relative z-20"
              onVisible={() => { setActiveAlign('center'); setActiveSection('footer'); }}
           >
-              <div className="text-[10px] uppercase tracking-[0.4em] text-white/50 bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur">
-                 Made by Vignesh
-              </div>
+              <h2 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-t from-white/10 via-white/50 to-white/80 drop-shadow-[0_0_30px_rgba(255,255,255,0.15)] mix-blend-screen animate-fade-in pointer-events-auto">
+                 MADE BY<br/>VIGNESH
+              </h2>
           </VisibilityTracker>
         </div>
       )}
