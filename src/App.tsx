@@ -147,13 +147,7 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [playingAudio, setPlayingAudio] = useState(false);
   
-  useEffect(() => {
-    // Auto fade splash screen to reveal the "Experience" button
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
+  // We cannot auto-fade because we NEED the user to click to enable Audio and Fullscreen
   
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
@@ -175,11 +169,25 @@ export default function App() {
   };
 
   const handleStart = () => {
-    setStarted(true);
-    setPlayingAudio(true); // START YOUTUBE AUDIO
+    // Browser required user interaction for fullscreen and audio
+    try {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      }
+    } catch (e) {
+      console.log('Fullscreen blocked');
+    }
+
+    setPlayingAudio(true);
+    setShowSplash(false);
+
+    // Fade to home page, then auto-trigger start
     setTimeout(() => {
-      setUiVisible(true);
-    }, 2000);
+        setStarted(true);
+        setTimeout(() => {
+            setUiVisible(true);
+        }, 2000);
+    }, 1500); // Wait for splash to fade before transitioning
   };
 
   const handleResetApp = () => {
@@ -215,9 +223,16 @@ export default function App() {
         playing={playingAudio} 
         loop={true} 
         volume={0.5}
-        width="0" 
-        height="0" 
-        style={{ display: 'none' }} 
+        width="1px" 
+        height="1px" 
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }} 
+        config={{
+          youtube: {
+            playerVars: { autoplay: 1, controls: 0 }
+          }
+        }}
+        onStart={() => console.log('Audio started')}
+        onError={(e) => console.log('Audio error:', e)}
       />
 
       {/* 3D Global Space View / Boxed View */}
@@ -280,15 +295,23 @@ export default function App() {
       )}
 
       {/* --- SPLASH SCREEN --- */}
-      <div className={`fixed inset-0 z-[60] flex flex-col items-center justify-center transition-opacity duration-1000 ${showSplash ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+      <div 
+        onClick={handleStart}
+        className={`fixed inset-0 z-[60] flex flex-col items-center justify-center transition-opacity duration-1000 cursor-pointer ${showSplash ? 'opacity-100 pointer-events-auto bg-[#050507]/60 backdrop-blur-sm' : 'opacity-0 pointer-events-none'}`}
+      >
           <div className="text-white flex flex-col items-center">
              <span className="text-4xl lg:text-5xl mb-6 animate-bounce">🎧</span>
-             <h2 className="text-sm md:text-lg font-black uppercase tracking-[0.4em] text-white animate-pulse drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">Headphones Recommended</h2>
+             <h2 className="text-sm md:text-lg font-black uppercase tracking-[0.4em] text-white animate-pulse drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] mb-8 text-center px-4">
+               Headphones Recommended
+             </h2>
+             <span className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-[#38bdf8] opacity-80 border border-[#38bdf8]/30 px-6 py-3 rounded-full hover:bg-[#38bdf8]/10 transition-colors">
+               Click anywhere to enter fullscreen
+             </span>
           </div>
       </div>
 
-      {/* --- START PAGE LAYER --- */}
-      <div className={`absolute inset-0 flex flex-col items-center justify-center z-20 px-4 text-center transition-all duration-1000 transform ${showSplash ? 'opacity-0 scale-95 pointer-events-none' : (uiVisible ? 'opacity-0 -translate-y-24 pointer-events-none' : (started ? 'opacity-0 pointer-events-none' : 'opacity-100 scale-100 pointer-events-auto delay-500 animate-fade-in-up'))}`}>
+      {/* --- START PAGE LAYER (Now automatically skipped after click) --- */}
+      <div className={`absolute inset-0 flex flex-col items-center justify-center z-20 px-4 text-center transition-all duration-1000 transform ${showSplash ? 'opacity-0 scale-95 pointer-events-none' : (uiVisible ? 'opacity-0 -translate-y-24 pointer-events-none' : (started ? 'opacity-0 pointer-events-none' : 'opacity-100 scale-100 pointer-events-none animate-fade-in-up'))}`}>
           {/* The sun pointer acts as a backlight here since it tracks the mouse in 3D right behind the text layer */}
           <div className="relative inline-block mt-16 md:mt-0">
              <h2 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-400 via-slate-600 to-slate-800 tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] p-4 leading-[1.1] md:leading-[1.1]">
@@ -296,12 +319,7 @@ export default function App() {
              </h2>
           </div>
           
-          <button 
-            onClick={handleStart}
-            className="mt-12 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-[#38bdf8]/50 rounded-full text-white/80 hover:text-white tracking-[0.2em] font-light text-sm uppercase transition-all duration-500 backdrop-blur-md hover:shadow-[0_0_30px_rgba(56,189,248,0.3)] hover:-translate-y-1"
-          >
-            Experience
-          </button>
+          {/* Auto-skipped Experience button */}
       </div>
 
       {/* Fixed Scroll Down Ping */}
