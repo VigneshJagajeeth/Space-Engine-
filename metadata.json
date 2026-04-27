@@ -1,0 +1,6 @@
+{
+  "name": "Space Graphics Transform",
+  "description": "Interactive space-themed computer graphics transformation playground demonstrating translation, rotation, scaling, and shearing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
