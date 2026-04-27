@@ -114,16 +114,17 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
     return (
         <group ref={groupRef}>
             {/* The rocky inner core */}
-            <mesh geometry={geometry}>
+            <mesh geometry={geometry} castShadow receiveShadow>
                 <meshStandardMaterial 
                     map={rockTexture}
                     normalMap={normalTexture}
                     normalScale={new THREE.Vector2(0.5, 0.5)}
                     bumpMap={rockTexture}
                     bumpScale={0.05}
-                    color="#333333" 
-                    roughness={0.95} 
-                    metalness={0.1} 
+                    color="#555555" 
+                    roughness={0.8} 
+                    metalness={0.3} 
+                    envMapIntensity={0.3}
                 />
             </mesh>
 
@@ -186,8 +187,8 @@ const PointerLight = () => {
     return (
         <group ref={groupRef}>
             {/* Main lighting emitted by the sun, dimmed down so rock is not blown out */}
-            <pointLight color="#ffddaa" intensity={300} distance={50} decay={1.5} />
-            <pointLight color="#ffffff" intensity={150} distance={20} decay={2} />
+            <pointLight castShadow color="#ffddaa" intensity={300} distance={50} decay={1.5} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
+            <pointLight castShadow color="#ffffff" intensity={150} distance={20} decay={2} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
         </group>
     );
 };
@@ -195,9 +196,9 @@ const PointerLight = () => {
 export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started, tx, ty, tz, rotX, rotY, rotZ }) => {
     return (
         <div className="absolute inset-0 w-full h-full">
-            <Canvas camera={{ position: [0, 0, 10], fov: 45 }} dpr={[1, 1.5]}>
+            <Canvas shadows camera={{ position: [0, 0, 10], fov: 45 }} dpr={[1, 1.5]}>
                 {/* Low ambient light for cinematic effect, reliant on Mouse Light */}
-                <ambientLight intensity={0.02} />
+                <ambientLight intensity={0.05} />
                 <PointerLight />
                 
                 {/* Immersive 3D Galaxy Field */}
@@ -208,6 +209,9 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
                         <Asteroid matrix={matrix} started={started} />
                     </Suspense>
                 </Float>
+
+                {/* Subtle Environment reflections for realistic RTX-style PBR material response */}
+                <Environment preset="city" />
             </Canvas>
         </div>
     );
