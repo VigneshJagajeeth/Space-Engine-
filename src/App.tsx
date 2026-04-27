@@ -109,7 +109,7 @@ const BackgroundStars = () => (
   </div>
 );
 
-const SunCursor = ({ visible = true }: { visible?: boolean }) => {
+const SunCursor = ({ isLightOff = false }: { isLightOff?: boolean }) => {
   const cursorRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -125,7 +125,7 @@ const SunCursor = ({ visible = true }: { visible?: boolean }) => {
   return (
     <div 
       ref={cursorRef} 
-      className={`fixed top-0 left-0 z-[9999] pointer-events-none will-change-transform transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      className="fixed top-0 left-0 z-[9999] pointer-events-none will-change-transform"
       style={{
         width: '40px',
         height: '40px',
@@ -133,9 +133,9 @@ const SunCursor = ({ visible = true }: { visible?: boolean }) => {
         marginTop: '-20px',
       }}
     >
-      <div className="absolute inset-0 bg-white rounded-full scale-[0.4]" />
-      <div className="absolute inset-0 bg-[#ffebaa] rounded-full opacity-80 scale-[0.7]" />
-      <div className="absolute inset-0 bg-[#ffaa00] rounded-full opacity-30 mix-blend-screen scale-[1.5] blur-[4px]" />
+      <div className={`absolute inset-0 rounded-full scale-[0.4] transition-colors duration-1000 ${isLightOff ? 'bg-white/30' : 'bg-white'}`} />
+      <div className={`absolute inset-0 rounded-full scale-[0.7] transition-all duration-1000 ${isLightOff ? 'bg-[#555555] opacity-30' : 'bg-[#ffebaa] opacity-80'}`} />
+      <div className={`absolute inset-0 rounded-full mix-blend-screen scale-[1.5] blur-[4px] transition-all duration-1000 ${isLightOff ? 'bg-[#333333] opacity-10' : 'bg-[#ffaa00] opacity-30'}`} />
     </div>
   );
 };
@@ -218,7 +218,7 @@ export default function App() {
 
   return (
     <div className={`relative min-h-[100dvh] bg-[#050507] text-[#ffffff] font-['Helvetica_Neue',Arial,sans-serif] cursor-none ${!started ? 'overflow-hidden h-[100dvh]' : ''}`}>
-      <SunCursor visible={!isLightOff} />
+      <SunCursor isLightOff={isLightOff} />
       <FpsCounter visible={uiVisible} />
       {/* --- FIXED BACKGROUND LAYER --- */}
       <div className="fixed inset-0 z-0 pointer-events-none">
