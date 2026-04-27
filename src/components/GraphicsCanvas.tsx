@@ -121,7 +121,7 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
                     normalScale={new THREE.Vector2(0.5, 0.5)}
                     bumpMap={rockTexture}
                     bumpScale={0.05}
-                    color="#ffffff" 
+                    color="#333333" 
                     roughness={0.95} 
                     metalness={0.1} 
                 />
@@ -186,8 +186,8 @@ const PointerLight = () => {
     return (
         <group ref={groupRef}>
             {/* Main lighting emitted by the sun, dimmed down so rock is not blown out */}
-            <pointLight color="#ffddaa" intensity={150} distance={50} decay={1.5} />
-            <pointLight color="#ffffff" intensity={50} distance={15} decay={2} />
+            <pointLight color="#ffddaa" intensity={300} distance={50} decay={1.5} />
+            <pointLight color="#ffffff" intensity={150} distance={20} decay={2} />
         </group>
     );
 };
@@ -208,9 +208,6 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
                         <Asteroid matrix={matrix} started={started} />
                     </Suspense>
                 </Float>
-
-                {/* Subtle Environment reflections mapped on the dark metallic sections */}
-                <Environment preset="studio" />
             </Canvas>
         </div>
     );
