@@ -4,18 +4,16 @@ import { InteractiveStarfield } from './components/InteractiveStarfield';
 import { GraphicsCanvas } from './components/GraphicsCanvas';
 import { Slider, SliderGroup } from './components/Sliders';
 import { computeTransformMatrix4 } from './lib/matrix4';
-import ReactPlayer from 'react-player';
 
-// Simple useInView hook
 function useInView(options: IntersectionObserverInit = {}) {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Override threshold to 0 and use a strict rootMargin to prevent overlapping active areas during fast scrolling
+    // Rely on threshold area percentage (0.5) to naturally prevent overlapping during fast scrolling
     const observer = new IntersectionObserver(([entry]) => {
       setIsIntersecting(entry.isIntersecting);
-    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+    }, options);
 
     if (ref.current) {
       observer.observe(ref.current);
@@ -23,7 +21,8 @@ function useInView(options: IntersectionObserverInit = {}) {
 
     return () => observer.disconnect();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once
+  }, [options.threshold]); // Depend on threshold incase it re-renders
+
 
   return [ref, isIntersecting] as const;
 }
@@ -31,7 +30,7 @@ function useInView(options: IntersectionObserverInit = {}) {
 const TransformSection = ({ 
   title, num, description, align, children, onEnter, id
 }: any) => {
-  const [ref, inView] = useInView({ threshold: 0.3 });
+  const [ref, inView] = useInView({ threshold: 0.5 });
   const [hasEntered, setHasEntered] = useState(false);
   
   useEffect(() => {
@@ -145,7 +144,7 @@ export default function App() {
   const [started, setStarted] = useState(false);
   const [uiVisible, setUiVisible] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
-  const [playingAudio, setPlayingAudio] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
   
   // We cannot auto-fade because we NEED the user to click to enable Audio and Fullscreen
   
@@ -178,8 +177,11 @@ export default function App() {
       console.log('Fullscreen blocked');
     }
 
-    setPlayingAudio(true);
     setShowSplash(false);
+    if (audioRef.current) {
+        audioRef.current.volume = 0.5;
+        audioRef.current.play().catch(e => console.log("Audio failed:", e));
+    }
 
     // Fade to home page, then auto-trigger start
     setTimeout(() => {
@@ -193,7 +195,10 @@ export default function App() {
   const handleResetApp = () => {
     setStarted(false);
     setUiVisible(false);
-    setPlayingAudio(false);
+    if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+    }
     resetTransforms();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setActiveAlign('center');
@@ -217,23 +222,8 @@ export default function App() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#1a1a2e_0%,#050507_80%)] opacity-70 mix-blend-multiply" />
       </div>
 
-      {/* Hidden Audio Player for Background Music */}
-      <ReactPlayer 
-        url="https://www.youtube.com/watch?v=m86mBRKZHY0" 
-        playing={playingAudio} 
-        loop={true} 
-        volume={0.5}
-        width="1px" 
-        height="1px" 
-        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }} 
-        config={{
-          youtube: {
-            playerVars: { autoplay: 1, controls: 0 }
-          }
-        }}
-        onStart={() => console.log('Audio started')}
-        onError={(e) => console.log('Audio error:', e)}
-      />
+      {/* Native HTML5 Audio Player */}
+      <audio ref={audioRef} src="/bgm.mp3" loop />
 
       {/* 3D Global Space View / Boxed View */}
       <div className={`fixed z-0 pointer-events-none transition-all duration-[400ms] ease-out overflow-hidden flex items-center justify-center
