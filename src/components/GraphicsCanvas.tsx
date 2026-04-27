@@ -132,6 +132,8 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
 // Interactive Light tracking the mouse pointer perfectly over the 3D canvas
 const PointerLight = ({ active }: { active: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
+    const light1Ref = useRef<THREE.PointLight>(null);
+    const light2Ref = useRef<THREE.PointLight>(null);
     const globalMouse = useRef(new THREE.Vector2(0, 0));
 
     useEffect(() => {
@@ -163,14 +165,52 @@ const PointerLight = ({ active }: { active: boolean }) => {
             const safeDelta = Math.min(delta, 0.1);
             const dampAlpha = 1 - Math.exp(-8 * safeDelta);
             groupRef.current.position.lerp(pos, dampAlpha);
+
+            // Smoothly interpolate light intensity
+            if (light1Ref.current) {
+                light1Ref.current.intensity = THREE.MathUtils.lerp(light1Ref.current.intensity, active ? 300 : 0, dampAlpha);
+            }
+            if (light2Ref.current) {
+                light2Ref.current.intensity = THREE.MathUtils.lerp(light2Ref.current.intensity, active ? 150 : 0, dampAlpha);
+            }
         }
     });
 
     return (
         <group ref={groupRef}>
             {/* Main lighting emitted by the sun, dimmed down so rock is not blown out */}
-            <pointLight castShadow color="#ffddaa" intensity={active ? 300 : 0} distance={50} decay={1.5} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
-            <pointLight castShadow color="#ffffff" intensity={active ? 150 : 0} distance={20} decay={2} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
+            <pointLight ref={light1Ref} castShadow color="#ffddaa" intensity={300} distance={50} decay={1.5} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
+            <pointLight ref={light2Ref} castShadow color="#ffffff" intensity={150} distance={20} decay={2} shadow-mapSize={[1024, 1024]} shadow-bias={-0.001} />
+        </group>
+    );
+};
+
+// Smoothly transitioning ambient and directional lights
+const Starlights = ({ active }: { active: boolean }) => {
+    const dirLight1 = useRef<THREE.DirectionalLight>(null);
+    const dirLight2 = useRef<THREE.DirectionalLight>(null);
+    const ambLight = useRef<THREE.AmbientLight>(null);
+
+    useFrame((_, delta) => {
+        const safeDelta = Math.min(delta, 0.1);
+        const dampAlpha = 1 - Math.exp(-3 * safeDelta); // Slower fade for starlight
+
+        if (dirLight1.current) {
+            dirLight1.current.intensity = THREE.MathUtils.lerp(dirLight1.current.intensity, active ? 0.5 : 0, dampAlpha);
+        }
+        if (dirLight2.current) {
+            dirLight2.current.intensity = THREE.MathUtils.lerp(dirLight2.current.intensity, active ? 0.3 : 0, dampAlpha);
+        }
+        if (ambLight.current) {
+            ambLight.current.intensity = THREE.MathUtils.lerp(ambLight.current.intensity, active ? 0.15 : 0.05, dampAlpha);
+        }
+    });
+
+    return (
+        <group>
+            <directionalLight ref={dirLight1} color="#a3e6ff" intensity={0} position={[10, 5, -10]} castShadow shadow-bias={-0.001} />
+            <directionalLight ref={dirLight2} color="#ffccaa" intensity={0} position={[-10, -5, 10]} />
+            <ambientLight ref={ambLight} intensity={0.05} color="#ffffff" />
         </group>
     );
 };
@@ -179,18 +219,7 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
     return (
         <div className="absolute inset-0 w-full h-full">
             <Canvas shadows camera={{ position: [0, 0, 10], fov: 45 }} dpr={[1, 1.5]}>
-                {/* Low ambient light for cinematic effect, reliant on Mouse Light */}
-                {!isLightOff && <ambientLight intensity={0.05} />}
-                
-                {/* Simulated Starlight when pointer light is off */}
-                {isLightOff && (
-                    <group>
-                        <directionalLight color="#a3e6ff" intensity={0.5} position={[10, 5, -10]} castShadow shadow-bias={-0.001} />
-                        <directionalLight color="#ffccaa" intensity={0.3} position={[-10, -5, 10]} />
-                        <ambientLight intensity={0.15} color="#ffffff" />
-                    </group>
-                )}
-
+                <Starlights active={isLightOff || false} />
                 <PointerLight active={!isLightOff} />
                 
                 {/* Immersive 3D Galaxy Field */}
