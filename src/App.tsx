@@ -232,6 +232,21 @@ export default function App() {
           tx={tx} ty={ty} tz={tz}
           rotX={rotX} rotY={rotY} rotZ={rotZ}
         />
+
+        {/* Matrix HUD inside the boxed view */}
+        {started && (
+          <div className={`absolute bottom-6 left-6 md:bottom-8 md:left-8 z-40 transition-all duration-1000 ${uiVisible && (activeSection === 'trans' || activeSection === 'rot' || activeSection === 'scale') ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+             <div className="flex flex-col items-start">
+               <div className="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-white/50 mb-1 md:mb-2 bg-black/50 px-2 py-1 rounded inline-block backdrop-blur border border-white/10">Global Transform Matrix [4x4]</div>
+               <div className="font-[Courier_New,Courier,monospace] text-[8px] md:text-[9px] text-[#38bdf8] leading-[1.3] whitespace-pre bg-black/60 p-2 md:p-3 rounded-lg border border-white/10 backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+{`[ ${matrix[0][0].toFixed(2).padStart(6)}  ${matrix[0][1].toFixed(2).padStart(6)}  ${matrix[0][2].toFixed(2).padStart(6)}  ${matrix[0][3].toFixed(2).padStart(6)} ]
+[ ${matrix[1][0].toFixed(2).padStart(6)}  ${matrix[1][1].toFixed(2).padStart(6)}  ${matrix[1][2].toFixed(2).padStart(6)}  ${matrix[1][3].toFixed(2).padStart(6)} ]
+[ ${matrix[2][0].toFixed(2).padStart(6)}  ${matrix[2][1].toFixed(2).padStart(6)}  ${matrix[2][2].toFixed(2).padStart(6)}  ${matrix[2][3].toFixed(2).padStart(6)} ]
+[ ${matrix[3][0].toFixed(2).padStart(6)}  ${matrix[3][1].toFixed(2).padStart(6)}  ${matrix[3][2].toFixed(2).padStart(6)}  ${matrix[3][3].toFixed(2).padStart(6)} ]`}
+               </div>
+             </div>
+          </div>
+        )}
       </div>
 
       {/* --- FIXED UI FRAME LAYER --- */}
@@ -247,21 +262,6 @@ export default function App() {
           </h1>
         </div>
       </header>
-
-      {/* Fixed Matrix HUD - Only visible when started and scrolled past intro */}
-      {started && (
-        <div className={`fixed top-auto bottom-6 left-6 md:bottom-10 md:left-10 z-40 w-full md:w-auto flex justify-center md:justify-start transition-all duration-1000 ${uiVisible && (activeSection === 'trans' || activeSection === 'rot' || activeSection === 'scale') ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
-           <div className="flex flex-col items-center md:items-start">
-             <div className="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-white/50 mb-1 md:mb-2 bg-black/50 px-2 py-1 rounded inline-block backdrop-blur border border-white/10">Global Transform Matrix [4x4]</div>
-             <div className="font-[Courier_New,Courier,monospace] text-[8px] md:text-[9px] text-[#38bdf8] leading-[1.3] whitespace-pre bg-black/60 p-2 md:p-3 rounded-lg border border-white/10 backdrop-blur-md">
-{`[ ${matrix[0][0].toFixed(2).padStart(6)}  ${matrix[0][1].toFixed(2).padStart(6)}  ${matrix[0][2].toFixed(2).padStart(6)}  ${matrix[0][3].toFixed(2).padStart(6)} ]
-[ ${matrix[1][0].toFixed(2).padStart(6)}  ${matrix[1][1].toFixed(2).padStart(6)}  ${matrix[1][2].toFixed(2).padStart(6)}  ${matrix[1][3].toFixed(2).padStart(6)} ]
-[ ${matrix[2][0].toFixed(2).padStart(6)}  ${matrix[2][1].toFixed(2).padStart(6)}  ${matrix[2][2].toFixed(2).padStart(6)}  ${matrix[2][3].toFixed(2).padStart(6)} ]
-[ ${matrix[3][0].toFixed(2).padStart(6)}  ${matrix[3][1].toFixed(2).padStart(6)}  ${matrix[3][2].toFixed(2).padStart(6)}  ${matrix[3][3].toFixed(2).padStart(6)} ]`}
-             </div>
-           </div>
-        </div>
-      )}
 
       {/* Fixed Top Right Tabs - Only visible when started */}
       {started && (
