@@ -53,10 +53,18 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
             craters.forEach(crater => {
                 const dist = v.distanceTo(crater.dir.clone().multiplyScalar(1.5));
                 if (dist < crater.radius) {
-                    const normalizedDist = dist / crater.radius;
-                    const rim = Math.sin(normalizedDist * Math.PI) * 0.15;
-                    const bowl = -crater.depth * Math.pow(1 - normalizedDist, 2);
-                    craterDepth += bowl + rim;
+                    const x = dist / crater.radius; // 0 to 1
+                    // Realistic crater profile: steep bowl that smoothly transitions into a sharp rim
+                    if (x < 0.7) {
+                        // The inner bowl
+                        const bowlShape = 1 - Math.pow(x / 0.7, 2);
+                        craterDepth -= crater.depth * bowlShape;
+                    } else {
+                        // The raised outer rim
+                        const rimPos = (x - 0.7) / 0.3; // 0 to 1
+                        const rimShape = Math.sin(rimPos * Math.PI);
+                        craterDepth += (crater.depth * 0.3) * rimShape;
+                    }
                 }
             });
 
