@@ -132,7 +132,7 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
         if (started) {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 1, dampAlphaIn);
             animPos.current.lerp(new THREE.Vector3(0, 0, 0), dampAlphaIn);
-            if (animScale.current > 0.98 && !animDoneRef.current) {
+            if (animScale.current > 0.999 && !animDoneRef.current) {
                 animDoneRef.current = true;
                 setAnimDone(true);
             }
@@ -255,7 +255,7 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
         if (started) {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 1, dampAlphaIn);
             animPos.current.lerp(new THREE.Vector3(0, 0, 0), dampAlphaIn);
-            if (animScale.current > 0.98 && !animDoneRef.current) {
+            if (animScale.current > 0.999 && !animDoneRef.current) {
                 animDoneRef.current = true;
                 setAnimDone(true);
             }
