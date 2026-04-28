@@ -353,10 +353,8 @@ const PointerLight = ({ active }: { active: boolean }) => {
             // Calculate real-world position exactly beneath the mouse at Z=4
             const pos = state.camera.position.clone().add(vec.multiplyScalar(distance));
             
-            // Smoothly interpolate the light towards the target position
-            const safeDelta = Math.min(delta, 0.1);
-            const dampAlpha = 1 - Math.exp(-8 * safeDelta);
-            groupRef.current.position.lerp(pos, dampAlpha);
+            // Instantly update the light towards the target position to perfectly match the shader
+            groupRef.current.position.copy(pos);
 
             // Smoothly interpolate light intensity
             if (light1Ref.current) {
