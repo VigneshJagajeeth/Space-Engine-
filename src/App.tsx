@@ -257,7 +257,8 @@ export default function App() {
       <SunCursor isLightOff={isLightOff} />
       <FpsCounter visible={uiVisible && !hideUI} />
       {/* --- FIXED BACKGROUND LAYER --- */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div className="fixed inset-0 z-0 pointer-events-none bg-black">
+        <img src="/2k_stars_milky_way.jpg" alt="Milky Way" className="absolute inset-0 w-full h-full object-cover opacity-60" />
         <SpaceVideoBackground />
         <BackgroundStars />
         <InteractiveStarfield />
