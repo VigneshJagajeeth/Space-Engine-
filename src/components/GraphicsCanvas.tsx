@@ -54,6 +54,19 @@ const useDragRotation = () => {
     return { dragRot, isDragging };
 };
 
+const useGlobalMouse = () => {
+    const mouse = useRef(new THREE.Vector2(0, 0));
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
+    return mouse;
+};
+
 // A dynamic rocky Asteroid
 const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
@@ -198,6 +211,7 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
     const animScale = useRef(0.001);
     const { dragRot, isDragging } = useDragRotation();
+    const globalMouse = useGlobalMouse();
 
     const geometry = useMemo(() => new THREE.SphereGeometry(1.5, 64, 64), []);
 
@@ -246,7 +260,7 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
 
         // Update Shader Uniforms for Pointer Light
         if (materialRef.current && materialRef.current.userData.shader) {
-            const vec = new THREE.Vector3(state.pointer.x, state.pointer.y, 0.5);
+            const vec = new THREE.Vector3(globalMouse.current.x, globalMouse.current.y, 0.5);
             vec.unproject(state.camera);
             vec.sub(state.camera.position).normalize();
             const distance = (4 - state.camera.position.z) / vec.z;
@@ -337,11 +351,12 @@ const PointerLight = ({ active }: { active: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
     const light1Ref = useRef<THREE.PointLight>(null);
     const light2Ref = useRef<THREE.PointLight>(null);
+    const globalMouse = useGlobalMouse();
 
     useFrame((state, delta) => {
         if (groupRef.current) {
             // Convert normalized window pointer coordinates to a world position
-            const vec = new THREE.Vector3(state.pointer.x, state.pointer.y, 0.5);
+            const vec = new THREE.Vector3(globalMouse.current.x, globalMouse.current.y, 0.5);
             vec.unproject(state.camera);
             
             // Direction from camera to the unprojected point
