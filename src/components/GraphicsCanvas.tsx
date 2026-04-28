@@ -189,10 +189,9 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
     const groupRef = useRef<THREE.Group>(null);
     const materialRef = useRef<THREE.MeshStandardMaterial>(null);
     
-    const [dayTexture, bumpTexture, specularTexture, nightTexture] = useTexture([
+    const [dayTexture, bumpTexture, nightTexture] = useTexture([
         'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
         'https://unpkg.com/three-globe/example/img/earth-topology.png',
-        'https://unpkg.com/three-globe/example/img/earth-water.png',
         'https://unpkg.com/three-globe/example/img/earth-night.jpg'
     ]);
 
@@ -293,7 +292,9 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
              float intensityCustom = dot(normal, lightDirView);
              float nightMixCustom = 1.0 - smoothstep(-0.2, 0.1, intensityCustom);
              
-             totalEmissiveRadiance += nightColor.rgb * nightMixCustom * 2.0;`
+             // Multiply night map to make it brighter, and add a very subtle dark blue ambient base
+             vec3 finalNightColor = nightColor.rgb * 5.0 + vec3(0.0, 0.05, 0.1);
+             totalEmissiveRadiance += finalNightColor * nightMixCustom;`
         );
     };
 
@@ -305,9 +306,8 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
                     map={dayTexture}
                     bumpMap={bumpTexture}
                     bumpScale={0.02}
-                    roughnessMap={specularTexture}
-                    roughness={0.5} 
-                    metalness={0.1}
+                    roughness={0.7} 
+                    metalness={0.0}
                     onBeforeCompile={handleBeforeCompile}
                 />
             </mesh>
