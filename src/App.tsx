@@ -333,10 +333,10 @@ export default function App() {
       {started && (
         <div className={`fixed top-6 lg:top-10 right-6 lg:right-10 z-40 flex justify-end items-center pointer-events-auto mix-blend-screen hidden md:flex transition-all duration-1000 delay-300 ${uiVisible && !hideUI ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'}`}>
            <div className="flex items-center bg-white/5 backdrop-blur-xl border border-white/20 rounded-full p-1.5 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
-               {[{ id: 'info', label: 'INFO' }, { id: 'trans', label: 'TRANSLATION' }, { id: 'rot', label: 'ROTATION' }, { id: 'scale', label: 'SCALING' }, { id: 'tech', label: 'TECH STACK' }, { id: 'about', label: 'ABOUT' }].map(tab => (
+               {[{ id: 'home', label: 'HOME' }, { id: 'info', label: 'INFO' }, { id: 'trans', label: 'TRANSLATION' }, { id: 'rot', label: 'ROTATION' }, { id: 'scale', label: 'SCALING' }, { id: 'tech', label: 'TECH STACK' }, { id: 'about', label: 'ABOUT' }].map(tab => (
                  <button 
                    key={tab.id}
-                   onClick={() => scrollToSection(tab.id)}
+                   onClick={() => tab.id === 'home' ? window.scrollTo({ top: 0, behavior: 'smooth' }) : scrollToSection(tab.id)}
                    className="px-5 py-2.5 rounded-full text-center text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] transition-all duration-300"
                  >
                   {tab.label}
@@ -511,25 +511,25 @@ export default function App() {
       {/* Settings / Hide UI Toggle */}
       {started && uiVisible && !hideUI && (
         <div className="fixed bottom-6 left-6 md:bottom-10 md:left-10 z-[60] pointer-events-auto flex flex-col-reverse items-start gap-4">
-            <button 
-                onClick={() => setShowSettingsMenu(!showSettingsMenu)}
-                className="w-12 h-12 bg-[#050507]/80 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)]"
-            >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-            </button>
-
-            {/* Drop up menu */}
-            <div className={`flex flex-col gap-2 transition-all duration-300 origin-bottom ${showSettingsMenu ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}`}>
+            {/* Gear icon + Load Model side by side */}
+            <div className="flex items-center gap-2">
                 <button 
-                    onClick={() => {
-                        setActiveModel(prev => prev === 'asteroid' ? 'earth' : 'asteroid');
-                        setShowSettingsMenu(false);
-                    }}
-                    className="px-4 py-2 bg-[#050507]/90 backdrop-blur-xl border border-white/20 rounded-lg text-xs font-bold tracking-widest uppercase text-white/80 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap flex items-center gap-2"
+                    onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+                    className="w-12 h-12 bg-[#050507]/80 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                </button>
+                <button
+                    onClick={() => setActiveModel(prev => prev === 'asteroid' ? 'earth' : 'asteroid')}
+                    className="h-12 px-4 bg-[#050507]/80 backdrop-blur-md border border-white/20 rounded-full flex items-center gap-2 text-[10px] font-bold tracking-widest uppercase text-white/70 hover:text-white hover:bg-white/10 transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)] whitespace-nowrap"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     {activeModel === 'asteroid' ? 'Load Earth' : 'Load Asteroid'}
                 </button>
+            </div>
+
+            {/* Drop up menu */}
+            <div className={`flex flex-col gap-2 transition-all duration-300 origin-bottom ${showSettingsMenu ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}`}>
                 <button 
                     onClick={() => {
                         setHideAxis(prev => !prev);
