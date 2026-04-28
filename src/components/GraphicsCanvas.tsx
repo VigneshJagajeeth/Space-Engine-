@@ -306,6 +306,9 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
              float intensityCustom = dot(normal, lightDirView);
              float nightMixCustom = 1.0 - smoothstep(-0.2, 0.1, intensityCustom);
              
+             // Hide the day texture completely on the night side
+             diffuseColor.rgb *= (1.0 - nightMixCustom);
+
              // Multiply night map to make it brighter, and add a very subtle dark blue ambient base
              vec3 finalNightColor = nightColor.rgb * 5.0 + vec3(0.0, 0.05, 0.1);
              totalEmissiveRadiance += finalNightColor * nightMixCustom;`
@@ -320,7 +323,7 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
                     map={dayTexture}
                     bumpMap={bumpTexture}
                     bumpScale={0.02}
-                    roughness={0.7} 
+                    roughness={1.0} 
                     metalness={0.0}
                     onBeforeCompile={handleBeforeCompile}
                 />
@@ -347,7 +350,7 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
 };
 
 // Interactive Light tracking the mouse pointer perfectly over the 3D canvas
-const PointerLight = ({ active }: { active: boolean }) => {
+const PointerLight = ({ active, activeModel }: { active: boolean, activeModel?: string }) => {
     const groupRef = useRef<THREE.Group>(null);
     const light1Ref = useRef<THREE.PointLight>(null);
     const light2Ref = useRef<THREE.PointLight>(null);
@@ -376,10 +379,12 @@ const PointerLight = ({ active }: { active: boolean }) => {
 
             // Smoothly interpolate light intensity
             if (light1Ref.current) {
-                light1Ref.current.intensity = THREE.MathUtils.lerp(light1Ref.current.intensity, active ? 300 : 0, dampAlpha);
+                const targetInt1 = active ? (activeModel === 'earth' ? 40 : 300) : 0;
+                light1Ref.current.intensity = THREE.MathUtils.lerp(light1Ref.current.intensity, targetInt1, dampAlpha);
             }
             if (light2Ref.current) {
-                light2Ref.current.intensity = THREE.MathUtils.lerp(light2Ref.current.intensity, active ? 150 : 0, dampAlpha);
+                const targetInt2 = active ? (activeModel === 'earth' ? 20 : 150) : 0;
+                light2Ref.current.intensity = THREE.MathUtils.lerp(light2Ref.current.intensity, targetInt2, dampAlpha);
             }
         }
     });
@@ -418,7 +423,7 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
         <div className="absolute inset-0 w-full h-full">
             <Canvas shadows camera={{ position: [0, 0, 10], fov: 45 }} dpr={[1, 1.5]}>
                 <Starlights active={isLightOff || false} />
-                <PointerLight active={!isLightOff} />
+                <PointerLight active={!isLightOff} activeModel={activeModel} />
                 
                 <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                     <Suspense fallback={null}>
