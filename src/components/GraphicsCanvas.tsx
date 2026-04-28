@@ -205,7 +205,7 @@ const Earth = ({ matrix, started, hideUI, isLightOff }: { matrix: Matrix4x4, sta
     const [dayTexture, bumpTexture, nightTexture] = useTexture([
         'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
         'https://unpkg.com/three-globe/example/img/earth-topology.png',
-        'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_lights_2048.png'
+        '/2k_earth_nightmap.jpg'
     ]);
 
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
