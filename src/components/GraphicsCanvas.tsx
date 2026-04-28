@@ -90,7 +90,11 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
     const animScale = useRef(0.001);
     const [animDone, setAnimDone] = useState(false);
-    const animDoneRef = useRef(false); // ref guard so setState only fires on transition
+    const animDoneRef = useRef(false);
+    const axisOpacity = useRef(0);
+    const axisMatX = useRef<THREE.MeshBasicMaterial>(null);
+    const axisMatY = useRef<THREE.MeshBasicMaterial>(null);
+    const axisMatZ = useRef<THREE.MeshBasicMaterial>(null);
 
     const { dragRot, isDragging } = useDragRotation();
 
@@ -171,6 +175,13 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
         );
         m.premultiply(animM);
 
+        // Fade axis in/out smoothly
+        const targetOpacity = (animDoneRef.current && !hideUI && !hideAxis) ? 0.6 : 0;
+        axisOpacity.current = THREE.MathUtils.lerp(axisOpacity.current, targetOpacity, 1 - Math.exp(-4 * safeDelta));
+        if (axisMatX.current) axisMatX.current.opacity = axisOpacity.current;
+        if (axisMatY.current) axisMatY.current.opacity = axisOpacity.current;
+        if (axisMatZ.current) axisMatZ.current.opacity = axisOpacity.current;
+
         groupRef.current.matrix.copy(m);
     });
 
@@ -191,23 +202,21 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
                 />
             </mesh>
 
-            {/* Custom stylized local axes indicating transformations happen relative to the asteroid */}
-            {!hideUI && !hideAxis && animDone && (
-                <group>
-                    <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
-                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
-                        <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
-                    </mesh>
-                    <mesh position={[0, 1.4, 0]}>
-                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
-                        <meshBasicMaterial color="#22c55e" transparent opacity={0.6} />
-                    </mesh>
-                    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 1.4]}>
-                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
-                        <meshBasicMaterial color="#38bdf8" transparent opacity={0.6} />
-                    </mesh>
-                </group>
-            )}
+            {/* Axis lines — always in the scene, opacity driven by useFrame */}
+            <group>
+                <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
+                    <cylinderGeometry args={[0.015, 0.015, 2.5]} />
+                    <meshBasicMaterial ref={axisMatX} color="#ef4444" transparent opacity={0} />
+                </mesh>
+                <mesh position={[0, 1.4, 0]}>
+                    <cylinderGeometry args={[0.015, 0.015, 2.5]} />
+                    <meshBasicMaterial ref={axisMatY} color="#22c55e" transparent opacity={0} />
+                </mesh>
+                <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 1.4]}>
+                    <cylinderGeometry args={[0.015, 0.015, 2.5]} />
+                    <meshBasicMaterial ref={axisMatZ} color="#38bdf8" transparent opacity={0} />
+                </mesh>
+            </group>
         </group>
     );
 };
@@ -227,6 +236,10 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
     const animScale = useRef(0.001);
     const [animDone, setAnimDone] = useState(false);
     const animDoneRef = useRef(false);
+    const axisOpacity = useRef(0);
+    const axisMatX = useRef<THREE.MeshBasicMaterial>(null);
+    const axisMatY = useRef<THREE.MeshBasicMaterial>(null);
+    const axisMatZ = useRef<THREE.MeshBasicMaterial>(null);
     const { dragRot, isDragging } = useDragRotation();
     const globalMouse = useGlobalMouse();
 
@@ -293,6 +306,13 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
             materialRef.current.userData.shader.uniforms.sunPositionWorld.value.copy(pos);
             materialRef.current.userData.shader.uniforms.uIsLightOff.value = isLightOff ? 1.0 : 0.0;
         }
+
+        // Fade axis in/out smoothly
+        const targetOpacity = (animDoneRef.current && !hideUI && !hideAxis) ? 0.6 : 0;
+        axisOpacity.current = THREE.MathUtils.lerp(axisOpacity.current, targetOpacity, 1 - Math.exp(-4 * safeDelta));
+        if (axisMatX.current) axisMatX.current.opacity = axisOpacity.current;
+        if (axisMatY.current) axisMatY.current.opacity = axisOpacity.current;
+        if (axisMatZ.current) axisMatZ.current.opacity = axisOpacity.current;
     });
 
     const handleBeforeCompile = (shader: THREE.Shader) => {
@@ -361,22 +381,21 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
                 />
             </mesh>
 
-            {!hideUI && !hideAxis && animDone && (
-                <group>
-                    <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
-                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
-                        <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
-                    </mesh>
-                    <mesh position={[0, 1.4, 0]}>
-                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
-                        <meshBasicMaterial color="#22c55e" transparent opacity={0.6} />
-                    </mesh>
-                    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 1.4]}>
-                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
-                        <meshBasicMaterial color="#38bdf8" transparent opacity={0.6} />
-                    </mesh>
-                </group>
-            )}
+            {/* Axis lines — always in scene, opacity driven by useFrame */}
+            <group>
+                <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
+                    <cylinderGeometry args={[0.015, 0.015, 2.5]} />
+                    <meshBasicMaterial ref={axisMatX} color="#ef4444" transparent opacity={0} />
+                </mesh>
+                <mesh position={[0, 1.4, 0]}>
+                    <cylinderGeometry args={[0.015, 0.015, 2.5]} />
+                    <meshBasicMaterial ref={axisMatY} color="#22c55e" transparent opacity={0} />
+                </mesh>
+                <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 1.4]}>
+                    <cylinderGeometry args={[0.015, 0.015, 2.5]} />
+                    <meshBasicMaterial ref={axisMatZ} color="#38bdf8" transparent opacity={0} />
+                </mesh>
+            </group>
         </group>
     );
 };
