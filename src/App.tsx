@@ -281,7 +281,7 @@ export default function App() {
       <audio ref={audioRef} src="/bgm.mp3" loop />
 
       {/* 3D Global Space View / Boxed View */}
-      <div className={`fixed z-0 pointer-events-none transition-all duration-[400ms] ease-out overflow-hidden flex items-center justify-center
+      <div className={`fixed z-[5] pointer-events-none transition-[top,left,right,bottom,border-radius,background-color,box-shadow] duration-[600ms] ease-in-out overflow-hidden flex items-center justify-center
         ${!started || activeAlign === 'center' || hideUI ? 'inset-0 border border-transparent rounded-none bg-transparent shadow-none' : ''}
         ${started && activeAlign === 'left' && !hideUI ? 'top-[10vh] left-[5vw] right-[5vw] bottom-[55vh] md:top-[12vh] md:bottom-[12vh] md:h-auto md:left-[50vw] md:right-[5vw] border border-white/20 rounded-3xl bg-black/20 shadow-2xl backdrop-blur-2xl backdrop-saturate-150' : ''}
         ${started && activeAlign === 'right' && !hideUI ? 'top-[10vh] left-[5vw] right-[5vw] bottom-[55vh] md:top-[12vh] md:bottom-[12vh] md:h-auto md:left-[5vw] md:right-[50vw] border border-white/20 rounded-3xl bg-black/20 shadow-2xl backdrop-blur-2xl backdrop-saturate-150' : ''}
@@ -331,7 +331,7 @@ export default function App() {
 
       {/* Fixed Top Right Tabs - Only visible when started */}
       {started && (
-        <div className={`fixed top-6 lg:top-10 right-6 lg:right-10 z-40 flex justify-end items-center pointer-events-auto mix-blend-screen hidden md:flex transition-all duration-1000 delay-300 ${uiVisible && !hideUI ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'}`}>
+        <div className={`fixed top-6 lg:top-10 right-6 lg:right-10 z-[55] flex justify-end items-center pointer-events-auto hidden md:flex transition-all duration-1000 delay-300 ${uiVisible && !hideUI ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'}`}>
            <div className="flex items-center bg-white/5 backdrop-blur-xl border border-white/20 rounded-full p-1.5 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
                {[{ id: 'home', label: 'HOME' }, { id: 'info', label: 'INFO' }, { id: 'trans', label: 'TRANSLATION' }, { id: 'rot', label: 'ROTATION' }, { id: 'scale', label: 'SCALING' }, { id: 'tech', label: 'TECH STACK' }, { id: 'about', label: 'ABOUT' }].map(tab => (
                  <button 
