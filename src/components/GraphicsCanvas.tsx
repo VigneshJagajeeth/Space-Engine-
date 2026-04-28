@@ -10,28 +10,12 @@ interface GraphicsCanvasProps {
     tx: number; ty: number; tz: number;
     rotX: number; rotY: number; rotZ: number;
     isLightOff?: boolean;
+    isLightOff?: boolean;
     hideUI?: boolean;
+    activeModel?: string;
 }
 
-// A dynamic rocky Asteroid
-const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean }) => {
-    const groupRef = useRef<THREE.Group>(null);
-    const [rockTexture, normalTexture] = useTexture([
-        'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg',
-        'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/waternormals.jpg'
-    ]);
-
-    useEffect(() => {
-        if (normalTexture) {
-            normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
-            normalTexture.repeat.set(3, 3);
-        }
-    }, [normalTexture]);
-    
-    const animPos = useRef(new THREE.Vector3(0, -20, -50));
-    const animScale = useRef(0.001);
-
-    // Mouse Drag Rotation
+const useDragRotation = () => {
     const dragRot = useRef(new THREE.Quaternion());
     const isDragging = useRef(false);
     const prevMouse = useRef({ x: 0, y: 0 });
@@ -51,7 +35,6 @@ const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boo
             prevMouse.current = { x: e.clientX, y: e.clientY };
 
             const q = new THREE.Quaternion();
-            // Invert the rotation direction slightly for natural dragging feel
             q.setFromEuler(new THREE.Euler(dy * 0.005, dx * 0.005, 0, 'XYZ'));
             dragRot.current.multiplyQuaternions(q, dragRot.current);
             dragRot.current.normalize();
@@ -67,6 +50,29 @@ const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boo
             window.removeEventListener('mousemove', handleMove);
         };
     }, []);
+
+    return { dragRot, isDragging };
+};
+
+// A dynamic rocky Asteroid
+const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean }) => {
+    const groupRef = useRef<THREE.Group>(null);
+    const [rockTexture, normalTexture] = useTexture([
+        'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg',
+        'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/waternormals.jpg'
+    ]);
+
+    useEffect(() => {
+        if (normalTexture) {
+            normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+            normalTexture.repeat.set(3, 3);
+        }
+    }, [normalTexture]);
+    
+    const animPos = useRef(new THREE.Vector3(0, -20, -50));
+    const animScale = useRef(0.001);
+
+    const { dragRot, isDragging } = useDragRotation();
 
     // Generate an imperfect, rocky geometry with optimal performance/detail ratio
     const geometry = useMemo(() => {
@@ -120,6 +126,11 @@ const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boo
         const baseRot = new THREE.Matrix4().makeRotationY(state.clock.elapsedTime * 0.2);
         m.multiply(baseRot);
         
+        // Smoothly return to identity if not dragging
+        if (!isDragging.current) {
+            dragRot.current.slerp(new THREE.Quaternion(), dampAlphaOut * 0.5);
+        }
+
         // Add User Drag Rotation
         const dragM = new THREE.Matrix4().makeRotationFromQuaternion(dragRot.current);
         m.multiply(dragM);
@@ -173,37 +184,171 @@ const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boo
     );
 };
 
+// Earth Model with Day/Night Cycle Shader
+const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean }) => {
+    const groupRef = useRef<THREE.Group>(null);
+    const materialRef = useRef<THREE.MeshStandardMaterial>(null);
+    
+    const [dayTexture, bumpTexture, specularTexture, nightTexture] = useTexture([
+        'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+        'https://unpkg.com/three-globe/example/img/earth-topology.png',
+        'https://unpkg.com/three-globe/example/img/earth-water.png',
+        'https://unpkg.com/three-globe/example/img/earth-night.jpg'
+    ]);
+
+    const animPos = useRef(new THREE.Vector3(0, -20, -50));
+    const animScale = useRef(0.001);
+    const { dragRot, isDragging } = useDragRotation();
+
+    const geometry = useMemo(() => new THREE.SphereGeometry(1.5, 64, 64), []);
+
+    useFrame((state, delta) => {
+        if (!groupRef.current) return;
+
+        const safeDelta = Math.min(delta, 0.1);
+        const dampAlphaIn = 1 - Math.exp(-5 * safeDelta);
+        const dampAlphaOut = 1 - Math.exp(-8 * safeDelta);
+
+        if (started) {
+            animScale.current = THREE.MathUtils.lerp(animScale.current, 1, dampAlphaIn);
+            animPos.current.lerp(new THREE.Vector3(0, 0, 0), dampAlphaIn);
+        } else {
+            animScale.current = THREE.MathUtils.lerp(animScale.current, 0.001, dampAlphaOut);
+            animPos.current.lerp(new THREE.Vector3(0, -50, -100), dampAlphaOut);
+        }
+
+        const m = new THREE.Matrix4();
+        m.set(
+            matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3],
+            matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3],
+            matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3],
+            matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]
+        );
+        groupRef.current.matrixAutoUpdate = false;
+        
+        const baseRot = new THREE.Matrix4().makeRotationY(state.clock.elapsedTime * 0.1);
+        m.multiply(baseRot);
+        
+        if (!isDragging.current) {
+            dragRot.current.slerp(new THREE.Quaternion(), dampAlphaOut * 0.5);
+        }
+
+        const dragM = new THREE.Matrix4().makeRotationFromQuaternion(dragRot.current);
+        m.multiply(dragM);
+
+        const animM = new THREE.Matrix4().compose(
+            animPos.current,
+            new THREE.Quaternion(),
+            new THREE.Vector3(animScale.current, animScale.current, animScale.current)
+        );
+        m.premultiply(animM);
+
+        groupRef.current.matrix.copy(m);
+
+        // Update Shader Uniforms for Pointer Light
+        if (materialRef.current && materialRef.current.userData.shader) {
+            const vec = new THREE.Vector3(state.pointer.x, state.pointer.y, 0.5);
+            vec.unproject(state.camera);
+            vec.sub(state.camera.position).normalize();
+            const distance = (4 - state.camera.position.z) / vec.z;
+            const pos = state.camera.position.clone().add(vec.multiplyScalar(distance));
+            materialRef.current.userData.shader.uniforms.sunPositionWorld.value.copy(pos);
+        }
+    });
+
+    const handleBeforeCompile = (shader: THREE.Shader) => {
+        shader.uniforms.tNight = { value: nightTexture };
+        shader.uniforms.sunPositionWorld = { value: new THREE.Vector3(0, 0, 5) };
+        materialRef.current!.userData.shader = shader;
+
+        shader.vertexShader = shader.vertexShader.replace(
+            '#include <common>',
+            `#include <common>
+             uniform vec3 sunPositionWorld;
+             varying vec3 vSunPositionView;
+             varying vec3 vViewPos;`
+        ).replace(
+            '#include <worldpos_vertex>',
+            `#include <worldpos_vertex>
+             vSunPositionView = (viewMatrix * vec4(sunPositionWorld, 1.0)).xyz;
+             vViewPos = -mvPosition.xyz;`
+        );
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <common>',
+            `#include <common>
+             uniform sampler2D tNight;
+             varying vec3 vSunPositionView;
+             varying vec3 vViewPos;`
+        ).replace(
+            '#include <emissivemap_fragment>',
+            `#include <emissivemap_fragment>
+             vec4 nightColor = texture2D(tNight, vUv);
+             vec3 lightDirView = normalize(vSunPositionView + vViewPos);
+             
+             // Smoothstep the night map based on view space normal and light direction
+             float intensityCustom = dot(normal, lightDirView);
+             float nightMixCustom = smoothstep(0.1, -0.2, intensityCustom);
+             
+             totalEmissiveRadiance += nightColor.rgb * nightMixCustom * 2.0;`
+        );
+    };
+
+    return (
+        <group ref={groupRef}>
+            <mesh geometry={geometry} castShadow receiveShadow>
+                <meshStandardMaterial 
+                    ref={materialRef}
+                    map={dayTexture}
+                    bumpMap={bumpTexture}
+                    bumpScale={0.02}
+                    roughnessMap={specularTexture}
+                    roughness={0.5} 
+                    metalness={0.1}
+                    onBeforeCompile={handleBeforeCompile}
+                />
+            </mesh>
+
+            {!hideUI && (
+                <group>
+                    <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
+                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
+                        <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
+                    </mesh>
+                    <mesh position={[0, 1.4, 0]}>
+                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
+                        <meshBasicMaterial color="#22c55e" transparent opacity={0.6} />
+                    </mesh>
+                    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 1.4]}>
+                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
+                        <meshBasicMaterial color="#38bdf8" transparent opacity={0.6} />
+                    </mesh>
+                </group>
+            )}
+        </group>
+    );
+};
+
 // Interactive Light tracking the mouse pointer perfectly over the 3D canvas
 const PointerLight = ({ active }: { active: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
     const light1Ref = useRef<THREE.PointLight>(null);
     const light2Ref = useRef<THREE.PointLight>(null);
-    const globalMouse = useRef(new THREE.Vector2(0, 0));
 
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            // Map screen coordinates to NDC (-1 to +1)
-            globalMouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-            globalMouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        };
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
-    
-    useFrame(({ camera }, delta) => {
+    useFrame((state, delta) => {
         if (groupRef.current) {
             // Convert normalized window pointer coordinates to a world position
-            const vec = new THREE.Vector3(globalMouse.current.x, globalMouse.current.y, 0.5);
-            vec.unproject(camera);
+            const vec = new THREE.Vector3(state.pointer.x, state.pointer.y, 0.5);
+            vec.unproject(state.camera);
             
             // Direction from camera to the unprojected point
-            vec.sub(camera.position).normalize();
+            vec.sub(state.camera.position).normalize();
             
             // Calculate distance to intersect the plane where Z = 4
-            const distance = (4 - camera.position.z) / vec.z;
+            const distance = (4 - state.camera.position.z) / vec.z;
             
             // Calculate real-world position exactly beneath the mouse at Z=4
-            const pos = camera.position.clone().add(vec.multiplyScalar(distance));
+            const pos = state.camera.position.clone().add(vec.multiplyScalar(distance));
             
             // Smoothly interpolate the light towards the target position
             const safeDelta = Math.min(delta, 0.1);
@@ -259,19 +404,20 @@ const Starlights = ({ active }: { active: boolean }) => {
     );
 };
 
-export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started, tx, ty, tz, rotX, rotY, rotZ, isLightOff, hideUI }) => {
+export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started, tx, ty, tz, rotX, rotY, rotZ, isLightOff, hideUI, activeModel }) => {
     return (
         <div className="absolute inset-0 w-full h-full">
             <Canvas shadows camera={{ position: [0, 0, 10], fov: 45 }} dpr={[1, 1.5]}>
                 <Starlights active={isLightOff || false} />
                 <PointerLight active={!isLightOff} />
                 
-                {/* Immersive 3D Galaxy Field */}
-                {/* Background stars removed from here to keep them full screen */}
-
                 <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                     <Suspense fallback={null}>
-                        <Asteroid matrix={matrix} started={started} hideUI={hideUI} />
+                        {activeModel === 'earth' ? (
+                            <Earth matrix={matrix} started={started} hideUI={hideUI} />
+                        ) : (
+                            <Asteroid matrix={matrix} started={started} hideUI={hideUI} />
+                        )}
                     </Suspense>
                 </Float>
 

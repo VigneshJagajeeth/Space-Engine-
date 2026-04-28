@@ -154,6 +154,7 @@ export default function App() {
   const [hideUI, setHideUI] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [activeModel, setActiveModel] = useState('asteroid');
 
   useEffect(() => {
     if (hideUI) {
@@ -279,6 +280,7 @@ export default function App() {
           rotX={rotX} rotY={rotY} rotZ={rotZ}
           isLightOff={isLightOff}
           hideUI={hideUI}
+          activeModel={activeModel}
         />
 
         {/* Matrix HUD inside the boxed view */}
@@ -499,6 +501,16 @@ export default function App() {
 
             {/* Drop up menu */}
             <div className={`flex flex-col gap-2 transition-all duration-300 origin-bottom ${showSettingsMenu ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}`}>
+                <button 
+                    onClick={() => {
+                        setActiveModel(prev => prev === 'asteroid' ? 'earth' : 'asteroid');
+                        setShowSettingsMenu(false);
+                    }}
+                    className="px-4 py-2 bg-[#050507]/90 backdrop-blur-xl border border-white/20 rounded-lg text-xs font-bold tracking-widest uppercase text-white/80 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap flex items-center gap-2"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    {activeModel === 'asteroid' ? 'Load Earth' : 'Load Asteroid'}
+                </button>
                 <button 
                     onClick={() => {
                         setHideUI(true);
