@@ -81,8 +81,10 @@ export const InteractiveStarfield: React.FC = () => {
                 const s = Math.max(0.1, (star.baseSize * 1000) / star.z);
 
                 if (px >= 0 && px <= width && py >= 0 && py <= height) {
+                    ctx.beginPath();
+                    ctx.arc(px, py, s, 0, Math.PI * 2);
                     ctx.fillStyle = star.color;
-                    ctx.fillRect(px - s, py - s, s * 2, s * 2);
+                    ctx.fill();
                 }
             });
 

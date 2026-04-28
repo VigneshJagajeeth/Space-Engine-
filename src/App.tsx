@@ -324,7 +324,7 @@ export default function App() {
       {started && (
         <div className={`fixed top-6 lg:top-10 right-6 lg:right-10 z-40 flex justify-end items-center pointer-events-auto mix-blend-screen hidden md:flex transition-all duration-1000 delay-300 ${uiVisible && !hideUI ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'}`}>
            <div className="flex items-center bg-white/5 backdrop-blur-xl border border-white/20 rounded-full p-1.5 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
-               {[{ id: 'info', label: 'INFO' }, { id: 'trans', label: 'TRANSLATION' }, { id: 'rot', label: 'ROTATION' }, { id: 'scale', label: 'SCALING' }, { id: 'tech', label: 'TECH STACK' }].map(tab => (
+               {[{ id: 'info', label: 'INFO' }, { id: 'trans', label: 'TRANSLATION' }, { id: 'rot', label: 'ROTATION' }, { id: 'scale', label: 'SCALING' }, { id: 'tech', label: 'TECH STACK' }, { id: 'about', label: 'ABOUT' }].map(tab => (
                  <button 
                    key={tab.id}
                    onClick={() => scrollToSection(tab.id)}
@@ -365,7 +365,7 @@ export default function App() {
           
           <button 
             onClick={handleExperienceClick}
-            className={`mt-10 px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-[#38bdf8]/50 rounded-full text-white/80 hover:text-white tracking-[0.2em] font-light text-xs uppercase transition-all duration-1000 backdrop-blur-md hover:shadow-[0_0_30px_rgba(56,189,248,0.3)] hover:-translate-y-1 ${isTypingDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}
+            className={`mt-12 px-12 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-[#38bdf8]/50 rounded-full text-white/80 hover:text-white tracking-[0.3em] font-semibold text-base uppercase transition-all duration-1000 backdrop-blur-md hover:shadow-[0_0_40px_rgba(56,189,248,0.4)] hover:-translate-y-1 shadow-[0_0_20px_rgba(56,189,248,0.1)] ${isTypingDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}
           >
             Experience
           </button>
@@ -483,6 +483,35 @@ export default function App() {
                         <h4 className="text-lg text-white font-semibold mb-2">NASA High-Res Maps</h4>
                         <p className="text-[#94a3b8] text-xs leading-relaxed mt-auto">Utilizing highly accurate Blue Marble and Black Marble imagery, completely isolated from ambient Environment maps to preserve shadow integrity.</p>
                     </div>
+                </div>
+             </div>
+          </VisibilityTracker>
+
+          {/* About Section */}
+          <VisibilityTracker
+             id="about"
+             className="min-h-[100dvh] flex flex-col items-start justify-center pointer-events-none relative px-6 md:px-20 py-24"
+             onVisible={() => { setActiveAlign('left'); setActiveSection('about'); }}
+          >
+             <div className="max-w-xl bg-[#050507]/60 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-2xl relative overflow-hidden pointer-events-auto animate-fade-in">
+                <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#a78bfa]/70 to-transparent" />
+                <div className="text-[#a78bfa] font-mono text-[10px] uppercase tracking-widest mb-4">About This Project</div>
+                <h3 className="text-2xl md:text-4xl font-bold text-white mb-6 tracking-tight">Cosmos Engine</h3>
+                <p className="text-[#94a3b8] text-sm md:text-base leading-relaxed mb-4 font-light">
+                    Cosmos Engine is an interactive Computer Graphics demonstration built to visualize fundamental 3D transformation concepts — Translation, Rotation, and Scaling — applied in real-time to high-fidelity WebGL models.
+                </p>
+                <p className="text-[#94a3b8] text-sm md:text-base leading-relaxed mb-4 font-light">
+                    The Earth model features a fully custom GLSL shader pipeline that drives a physically accurate Day/Night cycle, powered entirely by your mouse cursor acting as the sun. No ambient light — just pure shader math on NASA's Black Marble textures.
+                </p>
+                <p className="text-[#94a3b8] text-sm md:text-base leading-relaxed font-light">
+                    Built with React Three Fiber, custom GLSL shaders, and Tailwind CSS. Every transformation updates a real 4×4 matrix in real-time.
+                </p>
+                <div className="mt-8 flex items-center gap-4">
+                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#a78bfa] to-[#e879f9] flex items-center justify-center text-white font-bold text-sm">V</div>
+                   <div>
+                      <div className="text-white font-semibold text-sm">Vignesh</div>
+                      <div className="text-[#94a3b8] text-xs">Computer Graphics — 2026</div>
+                   </div>
                 </div>
              </div>
           </VisibilityTracker>

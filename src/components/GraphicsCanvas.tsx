@@ -36,7 +36,7 @@ const useDragRotation = () => {
 
             const len = Math.sqrt(dx * dx + dy * dy);
             if (len > 0) {
-                const axis = new THREE.Vector3(dy, dx, 0).normalize();
+                const axis = new THREE.Vector3(-dy, dx, 0).normalize();
                 const q = new THREE.Quaternion().setFromAxisAngle(axis, len * 0.005);
                 dragRot.current.premultiply(q);
                 dragRot.current.normalize();
@@ -89,6 +89,7 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
     
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
     const animScale = useRef(0.001);
+    const animDone = useRef(false);
 
     const { dragRot, isDragging } = useDragRotation();
 
@@ -126,9 +127,11 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
         if (started) {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 1, dampAlphaIn);
             animPos.current.lerp(new THREE.Vector3(0, 0, 0), dampAlphaIn);
+            if (animScale.current > 0.98) animDone.current = true;
         } else {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 0.001, dampAlphaOut);
             animPos.current.lerp(new THREE.Vector3(0, -50, -100), dampAlphaOut);
+            animDone.current = false;
         }
 
         const m = new THREE.Matrix4();
@@ -182,7 +185,7 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
             </mesh>
 
             {/* Custom stylized local axes indicating transformations happen relative to the asteroid */}
-            {!hideUI && !hideAxis && (
+            {!hideUI && !hideAxis && animDone.current && (
                 <group>
                     <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
                         <cylinderGeometry args={[0.015, 0.015, 2.5]} />
@@ -215,6 +218,7 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
 
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
     const animScale = useRef(0.001);
+    const animDone = useRef(false);
     const { dragRot, isDragging } = useDragRotation();
     const globalMouse = useGlobalMouse();
 
@@ -230,9 +234,11 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
         if (started) {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 1, dampAlphaIn);
             animPos.current.lerp(new THREE.Vector3(0, 0, 0), dampAlphaIn);
+            if (animScale.current > 0.98) animDone.current = true;
         } else {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 0.001, dampAlphaOut);
             animPos.current.lerp(new THREE.Vector3(0, -50, -100), dampAlphaOut);
+            animDone.current = false;
         }
 
         const m = new THREE.Matrix4();
@@ -341,7 +347,7 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
                 />
             </mesh>
 
-            {!hideUI && !hideAxis && (
+            {!hideUI && !hideAxis && animDone.current && (
                 <group>
                     <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
                         <cylinderGeometry args={[0.015, 0.015, 2.5]} />
