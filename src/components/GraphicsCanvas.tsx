@@ -205,7 +205,7 @@ const Earth = ({ matrix, started, hideUI, isLightOff }: { matrix: Matrix4x4, sta
     const [dayTexture, bumpTexture, nightTexture] = useTexture([
         'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
         'https://unpkg.com/three-globe/example/img/earth-topology.png',
-        'https://unpkg.com/three-globe/example/img/earth-night.jpg'
+        'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_lights_2048.png'
     ]);
 
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
@@ -315,8 +315,8 @@ const Earth = ({ matrix, started, hideUI, isLightOff }: { matrix: Matrix4x4, sta
              // Hide the day texture completely on the night side
              diffuseColor.rgb *= (1.0 - nightMixCustom);
 
-             // Multiply night map to make it brighter without artificial ambient glow
-             vec3 finalNightColor = nightColor.rgb;
+             // Boost the new Black Marble city lights texture so they glow beautifully
+             vec3 finalNightColor = nightColor.rgb * 2.0;
              totalEmissiveRadiance += finalNightColor * nightMixCustom;`
         );
     };
