@@ -155,6 +155,15 @@ export default function App() {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [activeModel, setActiveModel] = useState('earth');
+  const [isMuted, setIsMuted] = useState(false);
+
+  const handleToggleMute = () => {
+    setIsMuted(prev => {
+      const next = !prev;
+      if (audioRef.current) audioRef.current.muted = next;
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (hideUI) {
@@ -487,37 +496,9 @@ export default function App() {
              </div>
           </VisibilityTracker>
 
-          {/* About Section */}
+          {/* Footer Section - Massive Bold Text */}
           <VisibilityTracker
              id="about"
-             className="min-h-[100dvh] flex flex-col items-start justify-center pointer-events-none relative px-6 md:px-20 py-24"
-             onVisible={() => { setActiveAlign('left'); setActiveSection('about'); }}
-          >
-             <div className="max-w-xl bg-[#050507]/60 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-3xl shadow-2xl relative overflow-hidden pointer-events-auto animate-fade-in">
-                <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#a78bfa]/70 to-transparent" />
-                <div className="text-[#a78bfa] font-mono text-[10px] uppercase tracking-widest mb-4">About This Project</div>
-                <h3 className="text-2xl md:text-4xl font-bold text-white mb-6 tracking-tight">Cosmos Engine</h3>
-                <p className="text-[#94a3b8] text-sm md:text-base leading-relaxed mb-4 font-light">
-                    Cosmos Engine is an interactive Computer Graphics demonstration built to visualize fundamental 3D transformation concepts — Translation, Rotation, and Scaling — applied in real-time to high-fidelity WebGL models.
-                </p>
-                <p className="text-[#94a3b8] text-sm md:text-base leading-relaxed mb-4 font-light">
-                    The Earth model features a fully custom GLSL shader pipeline that drives a physically accurate Day/Night cycle, powered entirely by your mouse cursor acting as the sun. No ambient light — just pure shader math on NASA's Black Marble textures.
-                </p>
-                <p className="text-[#94a3b8] text-sm md:text-base leading-relaxed font-light">
-                    Built with React Three Fiber, custom GLSL shaders, and Tailwind CSS. Every transformation updates a real 4×4 matrix in real-time.
-                </p>
-                <div className="mt-8 flex items-center gap-4">
-                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#a78bfa] to-[#e879f9] flex items-center justify-center text-white font-bold text-sm">V</div>
-                   <div>
-                      <div className="text-white font-semibold text-sm">Vignesh</div>
-                      <div className="text-[#94a3b8] text-xs">Computer Graphics — 2026</div>
-                   </div>
-                </div>
-             </div>
-          </VisibilityTracker>
-
-          {/* Footer Section - Massive Bold Text Below Asteroid */}
-          <VisibilityTracker
              className="min-h-[100dvh] flex flex-col items-center justify-end pb-24 md:pb-32 pointer-events-none text-center relative z-20"
              onVisible={() => { setActiveAlign('center'); setActiveSection('footer'); }}
           >
@@ -558,6 +539,17 @@ export default function App() {
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
                     {hideAxis ? 'Show Axis' : 'Hide Axis'}
+                </button>
+                <button 
+                    onClick={handleToggleMute}
+                    className="px-4 py-2 bg-[#050507]/90 backdrop-blur-xl border border-white/20 rounded-lg text-xs font-bold tracking-widest uppercase text-white/80 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap flex items-center gap-2"
+                >
+                    {isMuted ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+                    ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072M12 6v12m-3.536-9.536a5 5 0 000 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                    )}
+                    {isMuted ? 'Unmute Music' : 'Mute Music'}
                 </button>
                 <button 
                     onClick={() => {
