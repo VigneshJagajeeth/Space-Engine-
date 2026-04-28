@@ -316,7 +316,7 @@ const Earth = ({ matrix, started, hideUI, isLightOff }: { matrix: Matrix4x4, sta
              diffuseColor.rgb *= (1.0 - nightMixCustom);
 
              // Multiply night map to make it brighter without artificial ambient glow
-             vec3 finalNightColor = nightColor.rgb * 5.0;
+             vec3 finalNightColor = nightColor.rgb;
              totalEmissiveRadiance += finalNightColor * nightMixCustom;`
         );
     };
