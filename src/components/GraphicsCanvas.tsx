@@ -198,7 +198,7 @@ const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boo
 };
 
 // Earth Model with Day/Night Cycle Shader
-const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean }) => {
+const Earth = ({ matrix, started, hideUI, isLightOff }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean, isLightOff?: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
     const materialRef = useRef<THREE.MeshStandardMaterial>(null);
     
@@ -266,12 +266,14 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
             const distance = (4 - state.camera.position.z) / vec.z;
             const pos = state.camera.position.clone().add(vec.multiplyScalar(distance));
             materialRef.current.userData.shader.uniforms.sunPositionWorld.value.copy(pos);
+            materialRef.current.userData.shader.uniforms.uIsLightOff.value = isLightOff ? 1.0 : 0.0;
         }
     });
 
     const handleBeforeCompile = (shader: THREE.Shader) => {
         shader.uniforms.tNight = { value: nightTexture };
         shader.uniforms.sunPositionWorld = { value: new THREE.Vector3(0, 0, 5) };
+        shader.uniforms.uIsLightOff = { value: isLightOff ? 1.0 : 0.0 };
         materialRef.current!.userData.shader = shader;
 
         shader.vertexShader = shader.vertexShader.replace(
@@ -293,6 +295,7 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
             '#include <common>',
             `#include <common>
              uniform sampler2D tNight;
+             uniform float uIsLightOff;
              varying vec3 vSunPositionView;
              varying vec3 vViewPos;
              varying vec2 vCustomUv;`
@@ -305,6 +308,9 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
              // Smoothstep the night map based on view space normal and light direction
              float intensityCustom = dot(normal, lightDirView);
              float nightMixCustom = 1.0 - smoothstep(-0.2, 0.1, intensityCustom);
+             
+             // If light is turned off, force the entire planet into night mode
+             nightMixCustom = mix(nightMixCustom, 1.0, uIsLightOff);
              
              // Hide the day texture completely on the night side
              diffuseColor.rgb *= (1.0 - nightMixCustom);
@@ -325,6 +331,7 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
                     bumpScale={0.02}
                     roughness={1.0} 
                     metalness={0.0}
+                    envMapIntensity={0}
                     onBeforeCompile={handleBeforeCompile}
                 />
             </mesh>
@@ -405,7 +412,7 @@ const Starlights = ({ active, activeModel }: { active: boolean, activeModel?: st
         const dampAlpha = 1 - Math.exp(-3 * safeDelta); // Slower fade for starlight
 
         if (ambLight.current) {
-            const targetAmb = active ? 0.15 : 0;
+            const targetAmb = active ? 0.15 : 0.05;
             ambLight.current.intensity = THREE.MathUtils.lerp(ambLight.current.intensity, targetAmb, dampAlpha);
         }
     });
@@ -427,12 +434,14 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
                 <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                     <Suspense fallback={null}>
                         {activeModel === 'earth' ? (
-                            <Earth matrix={matrix} started={started} hideUI={hideUI} />
+                            <Earth matrix={matrix} started={started} hideUI={hideUI} isLightOff={isLightOff} />
                         ) : (
                             <Asteroid matrix={matrix} started={started} hideUI={hideUI} />
                         )}
                     </Suspense>
                 </Float>
+
+                <Environment preset="city" />
             </Canvas>
         </div>
     );
