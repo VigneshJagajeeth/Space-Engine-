@@ -192,7 +192,7 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
             </mesh>
 
             {/* Custom stylized local axes indicating transformations happen relative to the asteroid */}
-            {!hideUI && !hideAxis && animDone.current && (
+            {!hideUI && !hideAxis && animDone && (
                 <group>
                     <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
                         <cylinderGeometry args={[0.015, 0.015, 2.5]} />
@@ -361,7 +361,7 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
                 />
             </mesh>
 
-            {!hideUI && !hideAxis && animDone.current && (
+            {!hideUI && !hideAxis && animDone && (
                 <group>
                     <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
                         <cylinderGeometry args={[0.015, 0.015, 2.5]} />
