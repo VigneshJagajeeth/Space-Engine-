@@ -154,7 +154,7 @@ export default function App() {
   const [hideUI, setHideUI] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHint, setShowHint] = useState(false);
-  const [activeModel, setActiveModel] = useState('asteroid');
+  const [activeModel, setActiveModel] = useState('earth');
 
   useEffect(() => {
     if (hideUI) {

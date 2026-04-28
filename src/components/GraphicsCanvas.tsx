@@ -35,7 +35,7 @@ const useDragRotation = () => {
             prevMouse.current = { x: e.clientX, y: e.clientY };
 
             const q = new THREE.Quaternion();
-            q.setFromEuler(new THREE.Euler(dy * 0.005, dx * 0.005, 0, 'XYZ'));
+            q.setFromEuler(new THREE.Euler(-dy * 0.005, dx * 0.005, 0, 'XYZ'));
             dragRot.current.multiplyQuaternions(q, dragRot.current);
             dragRot.current.normalize();
         };
@@ -377,22 +377,14 @@ const PointerLight = ({ active }: { active: boolean }) => {
     );
 };
 
-// Smoothly transitioning ambient and directional lights
+// Smoothly transitioning ambient light
 const Starlights = ({ active }: { active: boolean }) => {
-    const dirLight1 = useRef<THREE.DirectionalLight>(null);
-    const dirLight2 = useRef<THREE.DirectionalLight>(null);
     const ambLight = useRef<THREE.AmbientLight>(null);
 
     useFrame((_, delta) => {
         const safeDelta = Math.min(delta, 0.1);
         const dampAlpha = 1 - Math.exp(-3 * safeDelta); // Slower fade for starlight
 
-        if (dirLight1.current) {
-            dirLight1.current.intensity = THREE.MathUtils.lerp(dirLight1.current.intensity, active ? 0.5 : 0, dampAlpha);
-        }
-        if (dirLight2.current) {
-            dirLight2.current.intensity = THREE.MathUtils.lerp(dirLight2.current.intensity, active ? 0.3 : 0, dampAlpha);
-        }
         if (ambLight.current) {
             ambLight.current.intensity = THREE.MathUtils.lerp(ambLight.current.intensity, active ? 0.15 : 0.05, dampAlpha);
         }
@@ -400,8 +392,6 @@ const Starlights = ({ active }: { active: boolean }) => {
 
     return (
         <group>
-            <directionalLight ref={dirLight1} color="#a3e6ff" intensity={0} position={[10, 5, -10]} castShadow shadow-bias={-0.001} />
-            <directionalLight ref={dirLight2} color="#ffccaa" intensity={0} position={[-10, -5, 10]} />
             <ambientLight ref={ambLight} intensity={0.05} color="#ffffff" />
         </group>
     );
