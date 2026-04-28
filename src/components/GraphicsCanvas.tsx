@@ -10,8 +10,8 @@ interface GraphicsCanvasProps {
     tx: number; ty: number; tz: number;
     rotX: number; rotY: number; rotZ: number;
     isLightOff?: boolean;
-    isLightOff?: boolean;
     hideUI?: boolean;
+    hideAxis?: boolean;
     activeModel?: string;
 }
 
@@ -34,19 +34,24 @@ const useDragRotation = () => {
             const dy = e.clientY - prevMouse.current.y;
             prevMouse.current = { x: e.clientX, y: e.clientY };
 
-            const q = new THREE.Quaternion();
-            q.setFromEuler(new THREE.Euler(-dy * 0.005, dx * 0.005, 0, 'XYZ'));
-            dragRot.current.multiplyQuaternions(q, dragRot.current);
-            dragRot.current.normalize();
+            const len = Math.sqrt(dx * dx + dy * dy);
+            if (len > 0) {
+                const axis = new THREE.Vector3(dy, dx, 0).normalize();
+                const q = new THREE.Quaternion().setFromAxisAngle(axis, len * 0.005);
+                dragRot.current.premultiply(q);
+                dragRot.current.normalize();
+            }
         };
 
         window.addEventListener('mousedown', handleDown);
         window.addEventListener('mouseup', handleUp);
+        window.addEventListener('mouseleave', handleUp);
         window.addEventListener('mousemove', handleMove);
 
         return () => {
             window.removeEventListener('mousedown', handleDown);
             window.removeEventListener('mouseup', handleUp);
+            window.removeEventListener('mouseleave', handleUp);
             window.removeEventListener('mousemove', handleMove);
         };
     }, []);
@@ -68,7 +73,7 @@ const useGlobalMouse = () => {
 };
 
 // A dynamic rocky Asteroid
-const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean }) => {
+const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean, hideAxis?: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
     const [rockTexture, normalTexture] = useTexture([
         'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg',
@@ -177,7 +182,7 @@ const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boo
             </mesh>
 
             {/* Custom stylized local axes indicating transformations happen relative to the asteroid */}
-            {!hideUI && (
+            {!hideUI && !hideAxis && (
                 <group>
                     <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
                         <cylinderGeometry args={[0.015, 0.015, 2.5]} />
@@ -198,7 +203,7 @@ const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boo
 };
 
 // Earth Model with Day/Night Cycle Shader
-const Earth = ({ matrix, started, hideUI, isLightOff }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean, isLightOff?: boolean }) => {
+const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean, hideAxis?: boolean, isLightOff?: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
     const materialRef = useRef<THREE.MeshStandardMaterial>(null);
     
@@ -336,7 +341,7 @@ const Earth = ({ matrix, started, hideUI, isLightOff }: { matrix: Matrix4x4, sta
                 />
             </mesh>
 
-            {!hideUI && (
+            {!hideUI && !hideAxis && (
                 <group>
                     <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
                         <cylinderGeometry args={[0.015, 0.015, 2.5]} />
@@ -424,7 +429,7 @@ const Starlights = ({ active, activeModel }: { active: boolean, activeModel?: st
     );
 };
 
-export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started, tx, ty, tz, rotX, rotY, rotZ, isLightOff, hideUI, activeModel }) => {
+export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started, tx, ty, tz, rotX, rotY, rotZ, isLightOff, hideUI, hideAxis, activeModel }) => {
     return (
         <div className="absolute inset-0 w-full h-full">
             <Canvas shadows camera={{ position: [0, 0, 10], fov: 45 }} dpr={[1, 1.5]}>
@@ -434,9 +439,9 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
                 <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                     <Suspense fallback={null}>
                         {activeModel === 'earth' ? (
-                            <Earth matrix={matrix} started={started} hideUI={hideUI} isLightOff={isLightOff} />
+                            <Earth matrix={matrix} started={started} hideUI={hideUI} hideAxis={hideAxis} isLightOff={isLightOff} />
                         ) : (
-                            <Asteroid matrix={matrix} started={started} hideUI={hideUI} />
+                            <Asteroid matrix={matrix} started={started} hideUI={hideUI} hideAxis={hideAxis} />
                         )}
                     </Suspense>
                 </Float>

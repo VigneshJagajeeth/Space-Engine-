@@ -28,7 +28,7 @@ function useInView(options: IntersectionObserverInit = {}) {
 }
 
 const TransformSection = ({ 
-  title, num, description, align, children, onEnter, id
+  title, num, description, align, children, onEnter, onReset, id
 }: any) => {
   const [ref, inView] = useInView({ threshold: 0.5 });
   const [hasEntered, setHasEntered] = useState(false);
@@ -50,7 +50,7 @@ const TransformSection = ({
           <div className="bg-[#050507]/60 backdrop-blur-2xl border border-white/10 p-6 md:p-8 rounded-2xl shadow-2xl relative overflow-hidden">
              {/* Subtle inset highlight */}
              <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#38bdf8]/50 to-transparent" />
-             <SliderGroup num={num} title={title} description={description} align="left">
+             <SliderGroup num={num} title={title} description={description} align="left" onReset={onReset}>
                 {children}
              </SliderGroup>
           </div>
@@ -204,14 +204,17 @@ export default function App() {
   const [sx, setSx] = useState(1);
   const [sy, setSy] = useState(1);
   const [sz, setSz] = useState(1);
+  const [scaleAll, setScaleAll] = useState(1);
 
   const [activeAlign, setActiveAlign] = useState<'center' | 'left' | 'right'>('center');
   const [activeSection, setActiveSection] = useState('intro');
 
+  const [hideAxis, setHideAxis] = useState(false);
+
   const resetTransforms = () => {
     setTx(0); setTy(0); setTz(0); 
     setRotX(0); setRotY(0); setRotZ(0); 
-    setSx(1); setSy(1); setSz(1);
+    setSx(1); setSy(1); setSz(1); setScaleAll(1);
   };
 
   const handleSplashClick = () => {
@@ -281,6 +284,7 @@ export default function App() {
           rotX={rotX} rotY={rotY} rotZ={rotZ}
           isLightOff={isLightOff}
           hideUI={hideUI}
+          hideAxis={hideAxis}
           activeModel={activeModel}
         />
 
@@ -403,7 +407,7 @@ export default function App() {
                     At the heart of every modern 3D graphics engine—from video games to interactive web visualizations—is linear algebra. Matrices are used to translate, rotate, and scale spatial coordinates.
                 </p>
                 <p className="text-[#94a3b8] text-sm md:text-base leading-relaxed mb-6 font-light text-left">
-                    This interactive exhibition allows you to manipulate parameters in real-time, instantly visualizing the underlying mathematical constructs applied to a physically-based WebGL model. Everything rendered dynamically updates the 4x4 Global Transform Matrix.
+                    This interactive exhibition allows you to manipulate parameters in real-time. Witness custom GLSL shaders react dynamically to your pointer, creating high-fidelity Day/Night cycles on NASA's Black Marble textures.
                 </p>
              </div>
           </VisibilityTracker>
@@ -416,6 +420,7 @@ export default function App() {
              align="left"
              id="trans"
              onEnter={() => { setActiveAlign('left'); setActiveSection('trans'); }}
+             onReset={() => { setTx(0); setTy(0); setTz(0); }}
           >
              <Slider label="TRANSLATE_X" min={-1.5} max={1.5} step={0.1} value={tx} onChange={setTx} unit="u" />
              <Slider label="TRANSLATE_Y" min={-1.5} max={1.5} step={0.1} value={ty} onChange={setTy} unit="u" />
@@ -430,6 +435,7 @@ export default function App() {
              align="right"
              id="rot"
              onEnter={() => { setActiveAlign('right'); setActiveSection('rot'); }}
+             onReset={() => { setRotX(0); setRotY(0); setRotZ(0); }}
           >
              <Slider label="ROTATE_X" min={-360} max={360} step={1} value={rotX} onChange={setRotX} unit="°" />
              <Slider label="ROTATE_Y" min={-360} max={360} step={1} value={rotY} onChange={setRotY} unit="°" />
@@ -444,10 +450,12 @@ export default function App() {
              align="left"
              id="scale"
              onEnter={() => { setActiveAlign('left'); setActiveSection('scale'); }}
+             onReset={() => { setSx(1); setSy(1); setSz(1); setScaleAll(1); }}
           >
-             <Slider label="SCALE_X" min={0.2} max={2} step={0.05} value={sx} onChange={setSx} />
-             <Slider label="SCALE_Y" min={0.2} max={2} step={0.05} value={sy} onChange={setSy} />
-             <Slider label="SCALE_Z" min={0.2} max={2} step={0.05} value={sz} onChange={setSz} />
+             <Slider label="SCALE_ALL" min={0.2} max={2} step={0.05} value={scaleAll} onChange={(v: number) => { setScaleAll(v); setSx(v); setSy(v); setSz(v); }} unit="x" />
+             <Slider label="SCALE_X" min={0.2} max={2} step={0.05} value={sx} onChange={setSx} unit="x" />
+             <Slider label="SCALE_Y" min={0.2} max={2} step={0.05} value={sy} onChange={setSy} unit="x" />
+             <Slider label="SCALE_Z" min={0.2} max={2} step={0.05} value={sz} onChange={setSz} unit="x" />
           </TransformSection>
 
           {/* Tech Stack Section */}
@@ -462,8 +470,8 @@ export default function App() {
                 <div className="grid grid-cols-1 gap-6 text-left">
                     <div className="bg-[#1a1a2e]/50 border border-white/5 p-6 rounded-2xl flex flex-col h-full">
                         <div className="text-[#38bdf8] font-mono text-[10px] uppercase mb-2 tracking-widest">Rendering Engine</div>
-                        <h4 className="text-lg text-white font-semibold mb-2">React Three Fiber</h4>
-                        <p className="text-[#94a3b8] text-xs leading-relaxed mt-auto">Leveraging the power of Three.js within React's declarative paradigm. Enables physically based rendering, dynamic lighting, and orbital mathematics.</p>
+                        <h4 className="text-lg text-white font-semibold mb-2">React Three Fiber & GLSL</h4>
+                        <p className="text-[#94a3b8] text-xs leading-relaxed mt-auto">Leveraging Three.js within React's declarative paradigm. Features custom GLSL shaders overriding physically-based materials for accurate terminator lines and Day/Night blends.</p>
                     </div>
                     <div className="bg-[#1a1a2e]/50 border border-white/5 p-6 rounded-2xl flex flex-col h-full">
                         <div className="text-[#e879f9] font-mono text-[10px] uppercase mb-2 tracking-widest">Style System</div>
@@ -471,9 +479,9 @@ export default function App() {
                         <p className="text-[#94a3b8] text-xs leading-relaxed mt-auto">Utility-first styling powering the responsive HUD, seamless glassmorphic panels, and structural alignment across viewports.</p>
                     </div>
                     <div className="bg-[#1a1a2e]/50 border border-white/5 p-6 rounded-2xl flex flex-col h-full">
-                        <div className="text-[#a78bfa] font-mono text-[10px] uppercase mb-2 tracking-widest">Logic Layer</div>
-                        <h4 className="text-lg text-white font-semibold mb-2">Vanilla Linear Algebra</h4>
-                        <p className="text-[#94a3b8] text-xs leading-relaxed mt-auto">A custom 4x4 matrix computation library mapping raw trigonometric operations directly isolated from the view library.</p>
+                        <div className="text-[#22c55e] font-mono text-[10px] uppercase mb-2 tracking-widest">Assets</div>
+                        <h4 className="text-lg text-white font-semibold mb-2">NASA High-Res Maps</h4>
+                        <p className="text-[#94a3b8] text-xs leading-relaxed mt-auto">Utilizing highly accurate Blue Marble and Black Marble imagery, completely isolated from ambient Environment maps to preserve shadow integrity.</p>
                     </div>
                 </div>
              </div>
@@ -511,6 +519,16 @@ export default function App() {
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     {activeModel === 'asteroid' ? 'Load Earth' : 'Load Asteroid'}
+                </button>
+                <button 
+                    onClick={() => {
+                        setHideAxis(prev => !prev);
+                        setShowSettingsMenu(false);
+                    }}
+                    className="px-4 py-2 bg-[#050507]/90 backdrop-blur-xl border border-white/20 rounded-lg text-xs font-bold tracking-widest uppercase text-white/80 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap flex items-center gap-2"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                    {hideAxis ? 'Show Axis' : 'Hide Axis'}
                 </button>
                 <button 
                     onClick={() => {

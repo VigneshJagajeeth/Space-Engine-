@@ -1,12 +1,21 @@
 import React from 'react';
 
-export const SliderGroup = ({ num, title, description, children, align = "left" }: any) => (
+export const SliderGroup = ({ num, title, description, children, align = "left", onReset }: any) => (
     <div className={`mb-10 ${align === "right" ? "text-right" : "text-left"}`}>
-        <div className="flex items-center gap-4 mb-3">
+        <div className={`flex items-center gap-4 mb-3 ${align === "right" ? "justify-end" : "justify-start"}`}>
+            {align === "right" && <div className="h-[1px] flex-1 bg-gradient-to-l from-[#e879f9]/50 to-transparent" />}
             <span className="text-xl font-bold text-[#e879f9] opacity-80">{num}</span>
-            <div className="h-[1px] flex-1 bg-gradient-to-r from-[#e879f9]/50 to-transparent" />
+            {align === "left" && <div className="h-[1px] flex-1 bg-gradient-to-r from-[#e879f9]/50 to-transparent" />}
         </div>
-        <div className="text-2xl font-bold tracking-tight text-white mb-2">{title}</div>
+        <div className={`flex items-center gap-4 mb-2 ${align === "right" ? "justify-end" : "justify-start"}`}>
+            {align === "right" && onReset && (
+                <button onClick={onReset} className="text-[10px] uppercase tracking-widest text-[#94a3b8] hover:text-white border border-white/10 hover:border-white/30 px-2 py-1 rounded transition-colors">Reset</button>
+            )}
+            <div className="text-2xl font-bold tracking-tight text-white">{title}</div>
+            {align === "left" && onReset && (
+                <button onClick={onReset} className="text-[10px] uppercase tracking-widest text-[#94a3b8] hover:text-white border border-white/10 hover:border-white/30 px-2 py-1 rounded transition-colors">Reset</button>
+            )}
+        </div>
         {description && (
             <p className="text-[14px] leading-relaxed text-[#94a3b8] mb-8 font-light">{description}</p>
         )}
