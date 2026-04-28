@@ -309,8 +309,8 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
              // Hide the day texture completely on the night side
              diffuseColor.rgb *= (1.0 - nightMixCustom);
 
-             // Multiply night map to make it brighter, and add a very subtle dark blue ambient base
-             vec3 finalNightColor = nightColor.rgb * 5.0 + vec3(0.0, 0.05, 0.1);
+             // Multiply night map to make it brighter without artificial ambient glow
+             vec3 finalNightColor = nightColor.rgb * 5.0;
              totalEmissiveRadiance += finalNightColor * nightMixCustom;`
         );
     };
@@ -350,7 +350,7 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
 };
 
 // Interactive Light tracking the mouse pointer perfectly over the 3D canvas
-const PointerLight = ({ active, activeModel }: { active: boolean, activeModel?: string }) => {
+const PointerLight = ({ active }: { active: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
     const light1Ref = useRef<THREE.PointLight>(null);
     const light2Ref = useRef<THREE.PointLight>(null);
@@ -379,12 +379,10 @@ const PointerLight = ({ active, activeModel }: { active: boolean, activeModel?: 
 
             // Smoothly interpolate light intensity
             if (light1Ref.current) {
-                const targetInt1 = active ? (activeModel === 'earth' ? 40 : 300) : 0;
-                light1Ref.current.intensity = THREE.MathUtils.lerp(light1Ref.current.intensity, targetInt1, dampAlpha);
+                light1Ref.current.intensity = THREE.MathUtils.lerp(light1Ref.current.intensity, active ? 300 : 0, dampAlpha);
             }
             if (light2Ref.current) {
-                const targetInt2 = active ? (activeModel === 'earth' ? 20 : 150) : 0;
-                light2Ref.current.intensity = THREE.MathUtils.lerp(light2Ref.current.intensity, targetInt2, dampAlpha);
+                light2Ref.current.intensity = THREE.MathUtils.lerp(light2Ref.current.intensity, active ? 150 : 0, dampAlpha);
             }
         }
     });
@@ -399,7 +397,7 @@ const PointerLight = ({ active, activeModel }: { active: boolean, activeModel?: 
 };
 
 // Smoothly transitioning ambient light
-const Starlights = ({ active }: { active: boolean }) => {
+const Starlights = ({ active, activeModel }: { active: boolean, activeModel?: string }) => {
     const ambLight = useRef<THREE.AmbientLight>(null);
 
     useFrame((_, delta) => {
@@ -407,7 +405,8 @@ const Starlights = ({ active }: { active: boolean }) => {
         const dampAlpha = 1 - Math.exp(-3 * safeDelta); // Slower fade for starlight
 
         if (ambLight.current) {
-            ambLight.current.intensity = THREE.MathUtils.lerp(ambLight.current.intensity, active ? 0.15 : 0.05, dampAlpha);
+            const targetAmb = active ? 0.15 : (activeModel === 'earth' ? 0.01 : 0.05);
+            ambLight.current.intensity = THREE.MathUtils.lerp(ambLight.current.intensity, targetAmb, dampAlpha);
         }
     });
 
@@ -422,8 +421,8 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
     return (
         <div className="absolute inset-0 w-full h-full">
             <Canvas shadows camera={{ position: [0, 0, 10], fov: 45 }} dpr={[1, 1.5]}>
-                <Starlights active={isLightOff || false} />
-                <PointerLight active={!isLightOff} activeModel={activeModel} />
+                <Starlights active={isLightOff || false} activeModel={activeModel} />
+                <PointerLight active={!isLightOff} />
                 
                 <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                     <Suspense fallback={null}>
