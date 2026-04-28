@@ -405,7 +405,7 @@ const Starlights = ({ active, activeModel }: { active: boolean, activeModel?: st
         const dampAlpha = 1 - Math.exp(-3 * safeDelta); // Slower fade for starlight
 
         if (ambLight.current) {
-            const targetAmb = active ? 0.15 : (activeModel === 'earth' ? 0.01 : 0.05);
+            const targetAmb = active ? 0.15 : 0;
             ambLight.current.intensity = THREE.MathUtils.lerp(ambLight.current.intensity, targetAmb, dampAlpha);
         }
     });
@@ -433,9 +433,6 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
                         )}
                     </Suspense>
                 </Float>
-
-                {/* Subtle Environment reflections for realistic RTX-style PBR material response */}
-                <Environment preset="city" />
             </Canvas>
         </div>
     );
