@@ -288,7 +288,7 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
              
              // Smoothstep the night map based on view space normal and light direction
              float intensityCustom = dot(normal, lightDirView);
-             float nightMixCustom = smoothstep(0.1, -0.2, intensityCustom);
+             float nightMixCustom = 1.0 - smoothstep(-0.2, 0.1, intensityCustom);
              
              totalEmissiveRadiance += nightColor.rgb * nightMixCustom * 2.0;`
         );
