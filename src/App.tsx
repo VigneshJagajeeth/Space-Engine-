@@ -147,17 +147,41 @@ export default function App() {
   const [isLightOff, setIsLightOff] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  const [typedText, setTypedText] = useState('');
+  const [isTypingDone, setIsTypingDone] = useState(false);
+  const fullText = "THE PHYSICS\nOF SPACE";
+
+  const [hideUI, setHideUI] = useState(false);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === 'l') {
         setIsLightOff(prev => !prev);
+      }
+      if (e.key === 'Escape' || e.code === 'Space') {
+        setHideUI(false);
+        setShowSettingsMenu(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
   
-  // We cannot auto-fade because we NEED the user to click to enable Audio and Fullscreen
+  useEffect(() => {
+    if (!showSplash && !started) {
+      let i = 0;
+      const interval = setInterval(() => {
+        setTypedText(fullText.substring(0, i));
+        i++;
+        if (i > fullText.length) {
+          clearInterval(interval);
+          setTimeout(() => setIsTypingDone(true), 200);
+        }
+      }, 150);
+      return () => clearInterval(interval);
+    }
+  }, [showSplash, started, fullText]);
   
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
@@ -219,7 +243,7 @@ export default function App() {
   return (
     <div className={`relative min-h-[100dvh] bg-[#050507] text-[#ffffff] font-['Helvetica_Neue',Arial,sans-serif] cursor-none ${!started ? 'overflow-hidden h-[100dvh]' : ''}`}>
       <SunCursor isLightOff={isLightOff} />
-      <FpsCounter visible={uiVisible} />
+      <FpsCounter visible={uiVisible && !hideUI} />
       {/* --- FIXED BACKGROUND LAYER --- */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <SpaceVideoBackground />
@@ -233,9 +257,9 @@ export default function App() {
 
       {/* 3D Global Space View / Boxed View */}
       <div className={`fixed z-0 pointer-events-none transition-all duration-[400ms] ease-out overflow-hidden flex items-center justify-center
-        ${!started || activeAlign === 'center' ? 'inset-0 border border-transparent rounded-none bg-transparent shadow-none' : ''}
-        ${started && activeAlign === 'left' ? 'top-[10vh] left-[5vw] right-[5vw] bottom-[55vh] md:top-[12vh] md:bottom-[12vh] md:h-auto md:left-[50vw] md:right-[5vw] border border-white/20 rounded-3xl bg-black/20 shadow-2xl backdrop-blur-2xl backdrop-saturate-150' : ''}
-        ${started && activeAlign === 'right' ? 'top-[10vh] left-[5vw] right-[5vw] bottom-[55vh] md:top-[12vh] md:bottom-[12vh] md:h-auto md:left-[5vw] md:right-[50vw] border border-white/20 rounded-3xl bg-black/20 shadow-2xl backdrop-blur-2xl backdrop-saturate-150' : ''}
+        ${!started || activeAlign === 'center' || hideUI ? 'inset-0 border border-transparent rounded-none bg-transparent shadow-none' : ''}
+        ${started && activeAlign === 'left' && !hideUI ? 'top-[10vh] left-[5vw] right-[5vw] bottom-[55vh] md:top-[12vh] md:bottom-[12vh] md:h-auto md:left-[50vw] md:right-[5vw] border border-white/20 rounded-3xl bg-black/20 shadow-2xl backdrop-blur-2xl backdrop-saturate-150' : ''}
+        ${started && activeAlign === 'right' && !hideUI ? 'top-[10vh] left-[5vw] right-[5vw] bottom-[55vh] md:top-[12vh] md:bottom-[12vh] md:h-auto md:left-[5vw] md:right-[50vw] border border-white/20 rounded-3xl bg-black/20 shadow-2xl backdrop-blur-2xl backdrop-saturate-150' : ''}
       `}>
         <GraphicsCanvas 
           matrix={matrix}
@@ -243,11 +267,12 @@ export default function App() {
           tx={tx} ty={ty} tz={tz}
           rotX={rotX} rotY={rotY} rotZ={rotZ}
           isLightOff={isLightOff}
+          hideUI={hideUI}
         />
 
         {/* Matrix HUD inside the boxed view */}
         {started && (
-          <div className={`absolute bottom-6 left-6 md:bottom-8 md:left-8 z-40 transition-all duration-1000 ${uiVisible && (activeSection === 'trans' || activeSection === 'rot' || activeSection === 'scale') ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+          <div className={`absolute bottom-6 left-6 md:bottom-8 md:left-8 z-40 transition-all duration-1000 ${uiVisible && !hideUI && (activeSection === 'trans' || activeSection === 'rot' || activeSection === 'scale') ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
              <div className="flex flex-col items-start">
                <div className="text-[8px] md:text-[9px] uppercase tracking-[0.2em] text-white/50 mb-1 md:mb-2 bg-black/50 px-2 py-1 rounded inline-block backdrop-blur border border-white/10">Global Transform Matrix [4x4]</div>
                <div className="font-[Courier_New,Courier,monospace] text-[8px] md:text-[9px] text-[#38bdf8] leading-[1.3] whitespace-pre bg-black/60 p-2 md:p-3 rounded-lg border border-white/10 backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.5)]">
@@ -262,22 +287,24 @@ export default function App() {
       </div>
 
       {/* --- FIXED UI FRAME LAYER --- */}
-      <header className={`fixed top-0 left-0 right-0 z-50 flex items-start justify-between p-6 lg:p-10 pointer-events-none transition-all duration-1000 ${showSplash ? 'opacity-0 -translate-y-8' : 'opacity-100 translate-y-0'}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 flex items-start justify-between p-6 lg:p-10 pointer-events-none transition-all duration-1000 ${showSplash || hideUI ? 'opacity-0 -translate-y-8' : 'opacity-100 translate-y-0'}`}>
         <div>
           <h1 
             onClick={handleResetApp}
-            className="text-2xl lg:text-4xl font-black leading-[0.85] tracking-[-0.05em] uppercase m-0 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 drop-shadow-2xl flex flex-col cursor-pointer pointer-events-auto hover:opacity-80 transition-opacity whitespace-nowrap"
+            className="text-4xl lg:text-6xl font-black leading-[0.8] tracking-tighter uppercase m-0 text-transparent bg-clip-text bg-gradient-to-br from-[#ffffff] via-[#e2e8f0] to-[#94a3b8] drop-shadow-[0_0_25px_rgba(255,255,255,0.4)] flex flex-col cursor-pointer pointer-events-auto transition-all duration-500 whitespace-nowrap hover:scale-105 hover:drop-shadow-[0_0_35px_rgba(255,255,255,0.6)]"
             title="Reset App"
           >
             Cosmos
-            <span className="text-[#e879f9] tracking-widest mt-1 text-lg lg:text-xl bg-clip-text bg-gradient-to-r from-[#38bdf8] to-[#e879f9] opacity-80 mix-blend-screen drop-shadow-[0_0_15px_rgba(232,121,249,0.8)]">Engine</span>
+            <span className="font-sans font-medium tracking-[0.5em] mt-2 text-sm lg:text-base bg-clip-text bg-gradient-to-r from-[#00f2fe] to-[#4facfe] text-transparent opacity-100 drop-shadow-[0_0_15px_rgba(0,242,254,0.8)]">
+              ENGINE
+            </span>
           </h1>
         </div>
       </header>
 
       {/* Fixed Top Right Tabs - Only visible when started */}
       {started && (
-        <div className={`fixed top-6 lg:top-10 right-6 lg:right-10 z-40 flex justify-end items-center gap-6 md:gap-10 pointer-events-auto mix-blend-screen hidden md:flex transition-all duration-1000 delay-300 ${uiVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'}`}>
+        <div className={`fixed top-6 lg:top-10 right-6 lg:right-10 z-40 flex justify-end items-center gap-6 md:gap-10 pointer-events-auto mix-blend-screen hidden md:flex transition-all duration-1000 delay-300 ${uiVisible && !hideUI ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'}`}>
            {[{ id: 'info', label: 'INFO' }, { id: 'trans', label: 'TRANSLATION' }, { id: 'rot', label: 'ROTATION' }, { id: 'scale', label: 'SCALING' }, { id: 'tech', label: 'TECH STACK' }].map(tab => (
              <button 
                key={tab.id}
@@ -310,15 +337,16 @@ export default function App() {
       {/* --- START PAGE LAYER --- */}
       <div className={`absolute inset-0 flex flex-col items-center justify-center z-20 px-4 text-center transition-all duration-1000 transform ${showSplash ? 'opacity-0 scale-95 pointer-events-none' : (uiVisible ? 'opacity-0 -translate-y-24 pointer-events-none' : (started ? 'opacity-0 pointer-events-none' : 'opacity-100 scale-100 pointer-events-auto delay-500 animate-fade-in-up'))}`}>
           {/* The sun pointer acts as a backlight here since it tracks the mouse in 3D right behind the text layer */}
-          <div className="relative inline-block mt-16 md:mt-0">
-             <h2 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-400 via-slate-600 to-slate-800 tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] p-4 leading-[1.1] md:leading-[1.1]">
-               THE PHYSICS<br/>OF SPACE
+          <div className="relative inline-block mt-16 md:mt-0 h-[150px] md:h-[200px] flex items-center justify-center">
+             <h2 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-400 via-slate-600 to-slate-800 tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] p-4 leading-[1.1] md:leading-[1.1] whitespace-pre-wrap">
+               {typedText}
+               {!isTypingDone && <span className="inline-block w-2 md:w-4 h-10 md:h-20 bg-white/80 animate-pulse ml-2 align-middle"></span>}
              </h2>
           </div>
           
           <button 
             onClick={handleExperienceClick}
-            className="mt-12 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-[#38bdf8]/50 rounded-full text-white/80 hover:text-white tracking-[0.2em] font-light text-sm uppercase transition-all duration-500 backdrop-blur-md hover:shadow-[0_0_30px_rgba(56,189,248,0.3)] hover:-translate-y-1"
+            className={`mt-10 px-6 py-2 bg-white/5 hover:bg-white/10 border border-white/20 hover:border-[#38bdf8]/50 rounded-full text-white/80 hover:text-white tracking-[0.2em] font-light text-xs uppercase transition-all duration-1000 backdrop-blur-md hover:shadow-[0_0_30px_rgba(56,189,248,0.3)] hover:-translate-y-1 ${isTypingDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}
           >
             Experience
           </button>
@@ -326,7 +354,7 @@ export default function App() {
 
       {/* Fixed Scroll Down Ping */}
       {started && (
-        <div className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ${uiVisible && activeSection === 'intro' ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+        <div className={`fixed bottom-10 left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ${uiVisible && !hideUI && activeSection === 'intro' ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
            <div className="animate-bounce flex flex-col items-center text-white/50 cursor-pointer" onClick={() => scrollToSection('info')}>
               <span className="text-[10px] uppercase tracking-[0.2em] mb-2">Scroll Down</span>
               <svg className="w-6 h-6 border-2 border-white/20 rounded-full p-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
@@ -336,7 +364,7 @@ export default function App() {
 
       {/* --- SCROLLING FOREGROUND LAYER --- */}
       {started && (
-        <div className={`relative z-10 w-full max-w-[1400px] mx-auto flex flex-col pt-[100px] md:pt-0 transition-all duration-1000 transform ${uiVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24 pointer-events-none'}`}>
+        <div className={`relative z-10 w-full max-w-[1400px] mx-auto flex flex-col pt-[100px] md:pt-0 transition-all duration-1000 transform ${uiVisible && !hideUI ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24 pointer-events-none hidden'}`}>
           
           {/* Intro Empty Section with Ping */}
           <VisibilityTracker
@@ -447,6 +475,38 @@ export default function App() {
           </VisibilityTracker>
         </div>
       )}
+      {/* Settings / Hide UI Toggle */}
+      {started && uiVisible && !hideUI && (
+        <div className="fixed bottom-6 left-6 md:bottom-10 md:left-10 z-[60] pointer-events-auto flex flex-col-reverse items-start gap-4">
+            <button 
+                onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+                className="w-12 h-12 bg-[#050507]/80 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            </button>
+
+            {/* Drop up menu */}
+            <div className={`flex flex-col gap-2 transition-all duration-300 origin-bottom ${showSettingsMenu ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none'}`}>
+                <button 
+                    onClick={() => {
+                        setHideUI(true);
+                        setShowSettingsMenu(false);
+                    }}
+                    className="px-4 py-2 bg-[#050507]/90 backdrop-blur-xl border border-white/20 rounded-lg text-xs font-bold tracking-widest uppercase text-white/80 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap flex items-center gap-2"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                    Hide UI
+                </button>
+            </div>
+        </div>
+      )}
+
+      {/* Return UI hint */}
+      <div className={`fixed top-10 left-1/2 -translate-x-1/2 z-50 transition-all duration-1000 pointer-events-none ${hideUI ? 'opacity-70 delay-500' : 'opacity-0 -translate-y-8'}`}>
+         <div className="bg-black/50 backdrop-blur px-6 py-2 rounded-full border border-white/10 text-xs tracking-widest text-white/80 uppercase">
+             Press ESC or Space to return
+         </div>
+      </div>
     </div>
   );
 }

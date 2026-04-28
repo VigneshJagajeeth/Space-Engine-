@@ -10,10 +10,11 @@ interface GraphicsCanvasProps {
     tx: number; ty: number; tz: number;
     rotX: number; rotY: number; rotZ: number;
     isLightOff?: boolean;
+    hideUI?: boolean;
 }
 
 // A dynamic rocky Asteroid
-const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) => {
+const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolean, hideUI?: boolean }) => {
     const groupRef = useRef<THREE.Group>(null);
     const [rockTexture, normalTexture] = useTexture([
         'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg',
@@ -29,6 +30,43 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
     
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
     const animScale = useRef(0.001);
+
+    // Mouse Drag Rotation
+    const dragRot = useRef(new THREE.Quaternion());
+    const isDragging = useRef(false);
+    const prevMouse = useRef({ x: 0, y: 0 });
+
+    useEffect(() => {
+        const handleDown = (e: MouseEvent) => {
+            isDragging.current = true;
+            prevMouse.current = { x: e.clientX, y: e.clientY };
+        };
+        const handleUp = () => {
+            isDragging.current = false;
+        };
+        const handleMove = (e: MouseEvent) => {
+            if (!isDragging.current) return;
+            const dx = e.clientX - prevMouse.current.x;
+            const dy = e.clientY - prevMouse.current.y;
+            prevMouse.current = { x: e.clientX, y: e.clientY };
+
+            const q = new THREE.Quaternion();
+            // Invert the rotation direction slightly for natural dragging feel
+            q.setFromEuler(new THREE.Euler(dy * 0.005, dx * 0.005, 0, 'XYZ'));
+            dragRot.current.multiplyQuaternions(q, dragRot.current);
+            dragRot.current.normalize();
+        };
+
+        window.addEventListener('mousedown', handleDown);
+        window.addEventListener('mouseup', handleUp);
+        window.addEventListener('mousemove', handleMove);
+
+        return () => {
+            window.removeEventListener('mousedown', handleDown);
+            window.removeEventListener('mouseup', handleUp);
+            window.removeEventListener('mousemove', handleMove);
+        };
+    }, []);
 
     // Generate an imperfect, rocky geometry with optimal performance/detail ratio
     const geometry = useMemo(() => {
@@ -82,6 +120,10 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
         const baseRot = new THREE.Matrix4().makeRotationY(state.clock.elapsedTime * 0.2);
         m.multiply(baseRot);
         
+        // Add User Drag Rotation
+        const dragM = new THREE.Matrix4().makeRotationFromQuaternion(dragRot.current);
+        m.multiply(dragM);
+        
         // Apply entry zoom/float animation
         const animM = new THREE.Matrix4().compose(
             animPos.current,
@@ -111,20 +153,22 @@ const Asteroid = ({ matrix, started }: { matrix: Matrix4x4, started: boolean }) 
             </mesh>
 
             {/* Custom stylized local axes indicating transformations happen relative to the asteroid */}
-            <group>
-                <mesh rotation={[0, 0, -Math.PI / 2]} position={[2.2, 0, 0]}>
-                    <cylinderGeometry args={[0.02, 0.02, 4]} />
-                    <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
-                </mesh>
-                <mesh position={[0, 2.2, 0]}>
-                    <cylinderGeometry args={[0.02, 0.02, 4]} />
-                    <meshBasicMaterial color="#22c55e" transparent opacity={0.6} />
-                </mesh>
-                <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 2.2]}>
-                    <cylinderGeometry args={[0.02, 0.02, 4]} />
-                    <meshBasicMaterial color="#38bdf8" transparent opacity={0.6} />
-                </mesh>
-            </group>
+            {!hideUI && (
+                <group>
+                    <mesh rotation={[0, 0, -Math.PI / 2]} position={[2.2, 0, 0]}>
+                        <cylinderGeometry args={[0.02, 0.02, 4]} />
+                        <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
+                    </mesh>
+                    <mesh position={[0, 2.2, 0]}>
+                        <cylinderGeometry args={[0.02, 0.02, 4]} />
+                        <meshBasicMaterial color="#22c55e" transparent opacity={0.6} />
+                    </mesh>
+                    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 2.2]}>
+                        <cylinderGeometry args={[0.02, 0.02, 4]} />
+                        <meshBasicMaterial color="#38bdf8" transparent opacity={0.6} />
+                    </mesh>
+                </group>
+            )}
         </group>
     );
 };
@@ -215,7 +259,7 @@ const Starlights = ({ active }: { active: boolean }) => {
     );
 };
 
-export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started, tx, ty, tz, rotX, rotY, rotZ, isLightOff }) => {
+export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started, tx, ty, tz, rotX, rotY, rotZ, isLightOff, hideUI }) => {
     return (
         <div className="absolute inset-0 w-full h-full">
             <Canvas shadows camera={{ position: [0, 0, 10], fov: 45 }} dpr={[1, 1.5]}>
@@ -227,7 +271,7 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
 
                 <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                     <Suspense fallback={null}>
-                        <Asteroid matrix={matrix} started={started} />
+                        <Asteroid matrix={matrix} started={started} hideUI={hideUI} />
                     </Suspense>
                 </Float>
 
