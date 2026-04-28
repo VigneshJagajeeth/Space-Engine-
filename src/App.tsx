@@ -153,13 +153,24 @@ export default function App() {
 
   const [hideUI, setHideUI] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+
+  useEffect(() => {
+    if (hideUI) {
+      setShowHint(true);
+      const t = setTimeout(() => setShowHint(false), 3000);
+      return () => clearTimeout(t);
+    } else {
+      setShowHint(false);
+    }
+  }, [hideUI]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === 'l') {
         setIsLightOff(prev => !prev);
       }
-      if (e.key === 'Escape' || e.code === 'Space') {
+      if (e.key.toLowerCase() === 'h') {
         setHideUI(false);
         setShowSettingsMenu(false);
       }
@@ -291,11 +302,11 @@ export default function App() {
         <div>
           <h1 
             onClick={handleResetApp}
-            className="text-4xl lg:text-6xl font-black leading-[0.8] tracking-tighter uppercase m-0 text-transparent bg-clip-text bg-gradient-to-br from-[#ffffff] via-[#e2e8f0] to-[#94a3b8] drop-shadow-[0_0_25px_rgba(255,255,255,0.4)] flex flex-col cursor-pointer pointer-events-auto transition-all duration-500 whitespace-nowrap hover:scale-105 hover:drop-shadow-[0_0_35px_rgba(255,255,255,0.6)]"
+            className="text-3xl md:text-4xl lg:text-5xl font-black leading-none tracking-tighter uppercase m-0 text-transparent bg-clip-text bg-gradient-to-br from-[#ffffff] via-[#e2e8f0] to-[#94a3b8] drop-shadow-[0_0_25px_rgba(255,255,255,0.4)] flex items-center gap-3 md:gap-4 cursor-pointer pointer-events-auto transition-all duration-500 whitespace-nowrap hover:scale-105 hover:drop-shadow-[0_0_35px_rgba(255,255,255,0.6)]"
             title="Reset App"
           >
-            Cosmos
-            <span className="font-sans font-medium tracking-[0.5em] mt-2 text-sm lg:text-base bg-clip-text bg-gradient-to-r from-[#00f2fe] to-[#4facfe] text-transparent opacity-100 drop-shadow-[0_0_15px_rgba(0,242,254,0.8)]">
+            COSMOS
+            <span className="font-sans font-bold tracking-[0.2em] text-xl md:text-2xl lg:text-3xl bg-clip-text bg-gradient-to-r from-[#00f2fe] to-[#4facfe] text-transparent opacity-100 drop-shadow-[0_0_15px_rgba(0,242,254,0.8)]">
               ENGINE
             </span>
           </h1>
@@ -304,17 +315,18 @@ export default function App() {
 
       {/* Fixed Top Right Tabs - Only visible when started */}
       {started && (
-        <div className={`fixed top-6 lg:top-10 right-6 lg:right-10 z-40 flex justify-end items-center gap-6 md:gap-10 pointer-events-auto mix-blend-screen hidden md:flex transition-all duration-1000 delay-300 ${uiVisible && !hideUI ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'}`}>
-           {[{ id: 'info', label: 'INFO' }, { id: 'trans', label: 'TRANSLATION' }, { id: 'rot', label: 'ROTATION' }, { id: 'scale', label: 'SCALING' }, { id: 'tech', label: 'TECH STACK' }].map(tab => (
-             <button 
-               key={tab.id}
-               onClick={() => scrollToSection(tab.id)}
-               className="text-center text-xs font-black uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors py-1 hover:-translate-y-1 transform duration-300 relative group"
-             >
-              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-[1px] w-0 bg-white/20 group-hover:bg-white group-hover:w-full transition-all"></span>
-              {tab.label}
-            </button>
-          ))}
+        <div className={`fixed top-6 lg:top-10 right-6 lg:right-10 z-40 flex justify-end items-center pointer-events-auto mix-blend-screen hidden md:flex transition-all duration-1000 delay-300 ${uiVisible && !hideUI ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'}`}>
+           <div className="flex items-center bg-white/5 backdrop-blur-xl border border-white/20 rounded-full p-1.5 shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+               {[{ id: 'info', label: 'INFO' }, { id: 'trans', label: 'TRANSLATION' }, { id: 'rot', label: 'ROTATION' }, { id: 'scale', label: 'SCALING' }, { id: 'tech', label: 'TECH STACK' }].map(tab => (
+                 <button 
+                   key={tab.id}
+                   onClick={() => scrollToSection(tab.id)}
+                   className="px-5 py-2.5 rounded-full text-center text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] transition-all duration-300"
+                 >
+                  {tab.label}
+                </button>
+              ))}
+           </div>
         </div>
       )}
 
@@ -502,9 +514,9 @@ export default function App() {
       )}
 
       {/* Return UI hint */}
-      <div className={`fixed top-10 left-1/2 -translate-x-1/2 z-50 transition-all duration-1000 pointer-events-none ${hideUI ? 'opacity-70 delay-500' : 'opacity-0 -translate-y-8'}`}>
-         <div className="bg-black/50 backdrop-blur px-6 py-2 rounded-full border border-white/10 text-xs tracking-widest text-white/80 uppercase">
-             Press ESC or Space to return
+      <div className={`fixed top-10 left-1/2 -translate-x-1/2 z-[70] transition-all duration-1000 pointer-events-none ${showHint ? 'opacity-100 translate-y-0 delay-500' : 'opacity-0 -translate-y-8'}`}>
+         <div className="bg-black/50 backdrop-blur-md px-8 py-3 rounded-full border border-white/20 text-xs font-bold tracking-[0.3em] text-white uppercase shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+             Press H to return
          </div>
       </div>
     </div>

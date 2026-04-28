@@ -155,16 +155,16 @@ const Asteroid = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boo
             {/* Custom stylized local axes indicating transformations happen relative to the asteroid */}
             {!hideUI && (
                 <group>
-                    <mesh rotation={[0, 0, -Math.PI / 2]} position={[2.2, 0, 0]}>
-                        <cylinderGeometry args={[0.02, 0.02, 4]} />
+                    <mesh rotation={[0, 0, -Math.PI / 2]} position={[1.4, 0, 0]}>
+                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
                         <meshBasicMaterial color="#ef4444" transparent opacity={0.6} />
                     </mesh>
-                    <mesh position={[0, 2.2, 0]}>
-                        <cylinderGeometry args={[0.02, 0.02, 4]} />
+                    <mesh position={[0, 1.4, 0]}>
+                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
                         <meshBasicMaterial color="#22c55e" transparent opacity={0.6} />
                     </mesh>
-                    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 2.2]}>
-                        <cylinderGeometry args={[0.02, 0.02, 4]} />
+                    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 1.4]}>
+                        <cylinderGeometry args={[0.015, 0.015, 2.5]} />
                         <meshBasicMaterial color="#38bdf8" transparent opacity={0.6} />
                     </mesh>
                 </group>
