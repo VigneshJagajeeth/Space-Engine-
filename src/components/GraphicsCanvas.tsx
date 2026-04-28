@@ -89,7 +89,8 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
     
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
     const animScale = useRef(0.001);
-    const animDone = useRef(false);
+    const [animDone, setAnimDone] = useState(false);
+    const animDoneRef = useRef(false); // ref guard so setState only fires on transition
 
     const { dragRot, isDragging } = useDragRotation();
 
@@ -127,11 +128,17 @@ const Asteroid = ({ matrix, started, hideUI, hideAxis }: { matrix: Matrix4x4, st
         if (started) {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 1, dampAlphaIn);
             animPos.current.lerp(new THREE.Vector3(0, 0, 0), dampAlphaIn);
-            if (animScale.current > 0.98) animDone.current = true;
+            if (animScale.current > 0.98 && !animDoneRef.current) {
+                animDoneRef.current = true;
+                setAnimDone(true);
+            }
         } else {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 0.001, dampAlphaOut);
             animPos.current.lerp(new THREE.Vector3(0, -50, -100), dampAlphaOut);
-            animDone.current = false;
+            if (animDoneRef.current) {
+                animDoneRef.current = false;
+                setAnimDone(false);
+            }
         }
 
         const m = new THREE.Matrix4();
@@ -218,7 +225,8 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
 
     const animPos = useRef(new THREE.Vector3(0, -20, -50));
     const animScale = useRef(0.001);
-    const animDone = useRef(false);
+    const [animDone, setAnimDone] = useState(false);
+    const animDoneRef = useRef(false);
     const { dragRot, isDragging } = useDragRotation();
     const globalMouse = useGlobalMouse();
 
@@ -234,11 +242,17 @@ const Earth = ({ matrix, started, hideUI, hideAxis, isLightOff }: { matrix: Matr
         if (started) {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 1, dampAlphaIn);
             animPos.current.lerp(new THREE.Vector3(0, 0, 0), dampAlphaIn);
-            if (animScale.current > 0.98) animDone.current = true;
+            if (animScale.current > 0.98 && !animDoneRef.current) {
+                animDoneRef.current = true;
+                setAnimDone(true);
+            }
         } else {
             animScale.current = THREE.MathUtils.lerp(animScale.current, 0.001, dampAlphaOut);
             animPos.current.lerp(new THREE.Vector3(0, -50, -100), dampAlphaOut);
-            animDone.current = false;
+            if (animDoneRef.current) {
+                animDoneRef.current = false;
+                setAnimDone(false);
+            }
         }
 
         const m = new THREE.Matrix4();
