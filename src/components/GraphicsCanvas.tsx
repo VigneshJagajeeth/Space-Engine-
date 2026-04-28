@@ -266,12 +266,14 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
             `#include <common>
              uniform vec3 sunPositionWorld;
              varying vec3 vSunPositionView;
-             varying vec3 vViewPos;`
+             varying vec3 vViewPos;
+             varying vec2 vCustomUv;`
         ).replace(
             '#include <worldpos_vertex>',
             `#include <worldpos_vertex>
              vSunPositionView = (viewMatrix * vec4(sunPositionWorld, 1.0)).xyz;
-             vViewPos = -mvPosition.xyz;`
+             vViewPos = -mvPosition.xyz;
+             vCustomUv = uv;`
         );
 
         shader.fragmentShader = shader.fragmentShader.replace(
@@ -279,11 +281,12 @@ const Earth = ({ matrix, started, hideUI }: { matrix: Matrix4x4, started: boolea
             `#include <common>
              uniform sampler2D tNight;
              varying vec3 vSunPositionView;
-             varying vec3 vViewPos;`
+             varying vec3 vViewPos;
+             varying vec2 vCustomUv;`
         ).replace(
             '#include <emissivemap_fragment>',
             `#include <emissivemap_fragment>
-             vec4 nightColor = texture2D(tNight, vUv);
+             vec4 nightColor = texture2D(tNight, vCustomUv);
              vec3 lightDirView = normalize(vSunPositionView + vViewPos);
              
              // Smoothstep the night map based on view space normal and light direction
