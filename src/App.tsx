@@ -258,11 +258,11 @@ export default function App() {
       <FpsCounter visible={uiVisible && !hideUI} />
       {/* --- FIXED BACKGROUND LAYER --- */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-black">
-        <img src="/2k_stars_milky_way.jpg" alt="Milky Way" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#1a1a2e_0%,#050507_80%)] opacity-70 mix-blend-multiply" />
+        <img src="/2k_stars_milky_way.jpg" alt="Milky Way" className="absolute inset-0 w-full h-full object-cover opacity-100 mix-blend-screen" />
         <SpaceVideoBackground />
         <BackgroundStars />
         <InteractiveStarfield />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#1a1a2e_0%,#050507_80%)] opacity-70 mix-blend-multiply" />
       </div>
 
       {/* Native HTML5 Audio Player */}
