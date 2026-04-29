@@ -496,15 +496,157 @@ export default function App() {
              </div>
           </VisibilityTracker>
 
-          {/* Footer Section - Massive Bold Text */}
+          {/* Footer Section - Galaxy Glass Signature */}
           <VisibilityTracker
              id="about"
              className="min-h-[100dvh] flex flex-col items-center justify-end pb-24 md:pb-32 pointer-events-none text-center relative z-20"
              onVisible={() => { setActiveAlign('center'); setActiveSection('footer'); }}
           >
-              <h2 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-t from-white/10 via-white/50 to-white/80 drop-shadow-[0_0_30px_rgba(255,255,255,0.15)] mix-blend-screen animate-fade-in pointer-events-auto">
-                 MADE BY<br/>VIGNESH
-              </h2>
+            <div className="relative flex flex-col items-center gap-6 pointer-events-auto animate-fade-in">
+
+              {/* Floating star particles */}
+              <div className="absolute inset-0 pointer-events-none overflow-visible" aria-hidden="true">
+                {[
+                  { top: '8%',  left: '5%',  size: 3,  delay: '0s',   dur: '2.8s' },
+                  { top: '15%', left: '88%', size: 2,  delay: '0.6s', dur: '3.4s' },
+                  { top: '70%', left: '3%',  size: 4,  delay: '1.1s', dur: '2.5s' },
+                  { top: '80%', left: '92%', size: 2,  delay: '0.3s', dur: '3.8s' },
+                  { top: '45%', left: '-6%', size: 3,  delay: '1.7s', dur: '2.9s' },
+                  { top: '55%', left: '99%', size: 2,  delay: '0.9s', dur: '3.2s' },
+                  { top: '-5%', left: '50%', size: 5,  delay: '2.0s', dur: '4.1s' },
+                  { top: '95%', left: '40%', size: 2,  delay: '0.4s', dur: '2.7s' },
+                ].map((s, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      position: 'absolute',
+                      top: s.top, left: s.left,
+                      width: `${s.size}px`, height: `${s.size}px`,
+                      borderRadius: '50%',
+                      background: 'radial-gradient(circle, #e9d5ff, #818cf8)',
+                      boxShadow: '0 0 6px 2px rgba(167,139,250,0.8)',
+                      animation: `star-float ${s.dur} ease-in-out ${s.delay} infinite`,
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Label above */}
+              <div style={{
+                fontSize: '10px',
+                letterSpacing: '0.45em',
+                textTransform: 'uppercase',
+                color: 'rgba(167,139,250,0.7)',
+                fontFamily: "'Helvetica Neue', Arial, sans-serif",
+                fontWeight: 700,
+              }}>
+                ✦ &nbsp; crafted by &nbsp; ✦
+              </div>
+
+              {/* Glass pill container */}
+              <div style={{
+                position: 'relative',
+                padding: '2.5rem 4rem',
+                borderRadius: '2.5rem',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(139,92,246,0.07) 50%, rgba(59,130,246,0.05) 100%)',
+                backdropFilter: 'blur(24px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                animation: 'glass-glow-breathe 4s ease-in-out infinite',
+                overflow: 'hidden',
+              }}>
+
+                {/* Top glass highlight edge */}
+                <div style={{
+                  position: 'absolute', top: 0, left: 0, right: 0, height: '1px',
+                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.35), rgba(167,139,250,0.5), rgba(255,255,255,0.35), transparent)',
+                }} />
+
+                {/* Bottom glass edge */}
+                <div style={{
+                  position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px',
+                  background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.3), transparent)',
+                }} />
+
+                {/* Nebula glow blobs behind text */}
+                <div style={{
+                  position: 'absolute', inset: 0, pointerEvents: 'none',
+                  background: 'radial-gradient(ellipse 70% 60% at 30% 50%, rgba(139,92,246,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 70% at 75% 50%, rgba(59,130,246,0.14) 0%, transparent 70%)',
+                  animation: 'nebula-pulse 6s ease-in-out infinite',
+                }} />
+
+                {/* Aurora shimmer sweep */}
+                <div style={{
+                  position: 'absolute', top: 0, bottom: 0,
+                  width: '40%',
+                  background: 'linear-gradient(90deg, transparent, rgba(167,139,250,0.15), rgba(99,102,241,0.25), rgba(167,139,250,0.15), transparent)',
+                  filter: 'blur(8px)',
+                  animation: 'aurora-drift 5s ease-in-out 0.5s infinite',
+                }} />
+                <div style={{
+                  position: 'absolute', top: 0, bottom: 0,
+                  width: '25%',
+                  background: 'linear-gradient(90deg, transparent, rgba(96,165,250,0.2), rgba(59,130,246,0.3), rgba(96,165,250,0.2), transparent)',
+                  filter: 'blur(6px)',
+                  animation: 'aurora-drift 7s ease-in-out 2s infinite',
+                }} />
+
+                {/* The actual signature text */}
+                <div style={{ position: 'relative', zIndex: 10, lineHeight: 1.05 }}>
+                  {'MADE BY'.split('').map((ch, i) => (
+                    <span
+                      key={`mb-${i}`}
+                      style={{
+                        display: 'inline-block',
+                        fontSize: 'clamp(2.5rem, 8vw, 7rem)',
+                        fontWeight: 900,
+                        textTransform: 'uppercase',
+                        letterSpacing: ch === ' ' ? '0.4em' : '0.08em',
+                        background: 'linear-gradient(180deg, #f5f3ff 0%, #c4b5fd 40%, #818cf8 80%, #4f46e5 100%)',
+                        backgroundSize: '200% 200%',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        animation: `galaxy-shimmer 4s ease-in-out ${(i * 0.08).toFixed(2)}s infinite, letter-glow 4s ease-in-out ${(i * 0.08).toFixed(2)}s infinite`,
+                        fontFamily: "'Helvetica Neue', Arial, sans-serif",
+                      }}
+                    >{ch === ' ' ? '\u00A0' : ch}</span>
+                  ))}
+                  <br />
+                  {'VIGNESH'.split('').map((ch, i) => (
+                    <span
+                      key={`vg-${i}`}
+                      style={{
+                        display: 'inline-block',
+                        fontSize: 'clamp(2.5rem, 8vw, 7rem)',
+                        fontWeight: 900,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        background: 'linear-gradient(180deg, #ffffff 0%, #e9d5ff 25%, #a78bfa 55%, #6366f1 85%, #3b82f6 100%)',
+                        backgroundSize: '200% 200%',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        animation: `galaxy-shimmer 4s ease-in-out ${(i * 0.12 + 0.3).toFixed(2)}s infinite, letter-glow 4s ease-in-out ${(i * 0.12 + 0.3).toFixed(2)}s infinite`,
+                        fontFamily: "'Helvetica Neue', Arial, sans-serif",
+                        filter: `drop-shadow(0 0 ${8 + i * 2}px rgba(139,92,246,0.6))`,
+                      }}
+                    >{ch}</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cosmic tagline below */}
+              <div style={{
+                fontSize: '9px',
+                letterSpacing: '0.5em',
+                textTransform: 'uppercase',
+                color: 'rgba(148,163,184,0.5)',
+                fontFamily: "'Helvetica Neue', Arial, sans-serif",
+              }}>
+                cosmos engine &nbsp;·&nbsp; computer graphics &nbsp;·&nbsp; 2025
+              </div>
+            </div>
           </VisibilityTracker>
         </div>
       )}
