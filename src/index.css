@@ -54,13 +54,13 @@
   }
 
   @keyframes glass-glow-breathe {
-    0%, 100% { box-shadow: 0 0 40px rgba(139,92,246,0.15), 0 0 80px rgba(59,130,246,0.08), inset 0 1px 0 rgba(255,255,255,0.08); }
-    50% { box-shadow: 0 0 80px rgba(168,85,247,0.35), 0 0 160px rgba(99,102,241,0.2), inset 0 1px 0 rgba(255,255,255,0.15); }
+    0%, 100% { box-shadow: 0 0 40px rgba(14,165,233,0.15), 0 0 80px rgba(2,132,199,0.08), inset 0 1px 0 rgba(255,255,255,0.08); }
+    50% { box-shadow: 0 0 80px rgba(56,189,248,0.35), 0 0 160px rgba(14,165,233,0.2), inset 0 1px 0 rgba(255,255,255,0.15); }
   }
 
   @keyframes letter-glow {
-    0%, 100% { text-shadow: 0 0 20px rgba(167,139,250,0.4), 0 0 60px rgba(99,102,241,0.2); }
-    50% { text-shadow: 0 0 40px rgba(192,132,252,0.8), 0 0 100px rgba(139,92,246,0.5), 0 0 160px rgba(59,130,246,0.3); }
+    0%, 100% { text-shadow: 0 0 20px rgba(56,189,248,0.4), 0 0 60px rgba(14,165,233,0.2); }
+    50% { text-shadow: 0 0 40px rgba(125,211,252,0.8), 0 0 100px rgba(56,189,248,0.5), 0 0 160px rgba(2,132,199,0.3); }
   }
 }
 
