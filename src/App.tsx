@@ -496,148 +496,82 @@ export default function App() {
              </div>
           </VisibilityTracker>
 
-          {/* Footer Section - Galaxy Glass Signature */}
+          {/* Footer Section - Dystopian Editorial Signature */}
           <VisibilityTracker
              id="about"
-             className="min-h-[100dvh] flex flex-col items-center justify-end pb-24 md:pb-32 pointer-events-none text-center relative z-20"
+             className="min-h-[100dvh] flex flex-col items-center justify-end pb-20 md:pb-28 pointer-events-none text-center relative z-20"
              onVisible={() => { setActiveAlign('center'); setActiveSection('footer'); }}
           >
-            <div className="relative flex flex-col items-center gap-6 pointer-events-auto animate-fade-in">
+            <div className="pointer-events-auto animate-fade-in w-full px-8 md:px-20" style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-              {/* Floating star particles */}
-              <div className="absolute inset-0 pointer-events-none overflow-visible" aria-hidden="true">
-                {[
-                  { top: '8%',  left: '5%',  size: 3,  delay: '0s',   dur: '2.8s' },
-                  { top: '15%', left: '88%', size: 2,  delay: '0.6s', dur: '3.4s' },
-                  { top: '70%', left: '3%',  size: 4,  delay: '1.1s', dur: '2.5s' },
-                  { top: '80%', left: '92%', size: 2,  delay: '0.3s', dur: '3.8s' },
-                  { top: '45%', left: '-6%', size: 3,  delay: '1.7s', dur: '2.9s' },
-                  { top: '55%', left: '99%', size: 2,  delay: '0.9s', dur: '3.2s' },
-                  { top: '-5%', left: '50%', size: 5,  delay: '2.0s', dur: '4.1s' },
-                  { top: '95%', left: '40%', size: 2,  delay: '0.4s', dur: '2.7s' },
-                ].map((s, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      position: 'absolute',
-                      top: s.top, left: s.left,
-                      width: `${s.size}px`, height: `${s.size}px`,
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle, #bae6fd, #0ea5e9)',
-                      boxShadow: '0 0 6px 2px rgba(14,165,233,0.9)',
-                      animation: `star-float ${s.dur} ease-in-out ${s.delay} infinite`,
-                    }}
-                  />
-                ))}
-              </div>
-
-
-
-              {/* Glass pill container */}
+              {/* Top hairline rule */}
               <div style={{
-                position: 'relative',
-                padding: '2rem 3.5rem 2.5rem',
-                borderRadius: '2.5rem',
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(14,165,233,0.07) 50%, rgba(2,132,199,0.05) 100%)',
-                backdropFilter: 'blur(28px) saturate(200%)',
-                WebkitBackdropFilter: 'blur(28px) saturate(200%)',
-                border: '1px solid rgba(56,189,248,0.18)',
-                animation: 'glass-glow-breathe 4s ease-in-out infinite',
-                overflow: 'hidden',
-                minWidth: 'clamp(320px, 70vw, 900px)',
+                height: '1px',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18) 20%, rgba(255,255,255,0.18) 80%, transparent)',
+                marginBottom: '1.75rem',
+              }} />
+
+              {/* Label row */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '0.6rem',
               }}>
-
-                {/* Top glass highlight edge */}
-                <div style={{
-                  position: 'absolute', top: 0, left: 0, right: 0, height: '1px',
-                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), rgba(56,189,248,0.6), rgba(255,255,255,0.3), transparent)',
-                }} />
-
-                {/* Bottom glass edge */}
-                <div style={{
-                  position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px',
-                  background: 'linear-gradient(90deg, transparent, rgba(14,165,233,0.35), transparent)',
-                }} />
-
-                {/* Nebula glow blobs behind text */}
-                <div style={{
-                  position: 'absolute', inset: 0, pointerEvents: 'none',
-                  background: 'radial-gradient(ellipse 65% 70% at 20% 60%, rgba(14,165,233,0.16) 0%, transparent 70%), radial-gradient(ellipse 55% 60% at 80% 40%, rgba(2,132,199,0.14) 0%, transparent 70%)',
-                  animation: 'nebula-pulse 6s ease-in-out infinite',
-                }} />
-
-                {/* Aurora shimmer sweep - blue */}
-                <div style={{
-                  position: 'absolute', top: 0, bottom: 0,
-                  width: '40%',
-                  background: 'linear-gradient(90deg, transparent, rgba(56,189,248,0.18), rgba(14,165,233,0.28), rgba(56,189,248,0.18), transparent)',
-                  filter: 'blur(8px)',
-                  animation: 'aurora-drift 5s ease-in-out 0.5s infinite',
-                }} />
-                <div style={{
-                  position: 'absolute', top: 0, bottom: 0,
-                  width: '25%',
-                  background: 'linear-gradient(90deg, transparent, rgba(125,211,252,0.15), rgba(56,189,248,0.25), rgba(125,211,252,0.15), transparent)',
-                  filter: 'blur(6px)',
-                  animation: 'aurora-drift 7s ease-in-out 2s infinite',
-                }} />
-
-                {/* Staggered text layout */}
-                <div style={{ position: 'relative', zIndex: 10 }}>
-
-                  {/* "MADE BY" — small, italic, left-aligned, muted */}
-                  <div style={{
-                    display: 'block',
-                    fontSize: 'clamp(0.75rem, 2vw, 1.25rem)',
-                    fontWeight: 500,
-                    fontStyle: 'italic',
-                    letterSpacing: '0.35em',
-                    textTransform: 'uppercase',
-                    color: 'rgba(125,211,252,0.65)',
-                    fontFamily: "'Helvetica Neue', Arial, sans-serif",
-                    marginBottom: '0.2rem',
-                    textAlign: 'left',
-                    paddingLeft: '0.2em',
-                  }}>
-                    made by
-                  </div>
-
-                  {/* "VIGNESH" — massive, galaxy blue shimmer */}
-                  <div style={{ lineHeight: 0.9 }}>
-                    {'VIGNESH'.split('').map((ch, i) => (
-                      <span
-                        key={`vg-${i}`}
-                        style={{
-                          display: 'inline-block',
-                          fontSize: 'clamp(3.5rem, 13vw, 10rem)',
-                          fontWeight: 900,
-                          textTransform: 'uppercase',
-                          letterSpacing: '-0.01em',
-                          background: 'linear-gradient(180deg, #f0f9ff 0%, #7dd3fc 25%, #38bdf8 55%, #0284c7 85%, #0c4a6e 100%)',
-                          backgroundSize: '200% 200%',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          backgroundClip: 'text',
-                          animation: `galaxy-shimmer 4s ease-in-out ${(i * 0.1).toFixed(2)}s infinite, letter-glow 4s ease-in-out ${(i * 0.1).toFixed(2)}s infinite`,
-                          fontFamily: "'Helvetica Neue', Arial, sans-serif",
-                          filter: `drop-shadow(0 0 ${10 + i * 3}px rgba(56,189,248,0.55))`,
-                        }}
-                      >{ch}</span>
-                    ))}
-                  </div>
-                </div>
+                <span style={{
+                  fontSize: '8px',
+                  letterSpacing: '0.55em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.22)',
+                  fontFamily: "'Courier New', Courier, monospace",
+                  fontWeight: 400,
+                }}>made by</span>
+                <span style={{
+                  fontSize: '8px',
+                  letterSpacing: '0.4em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.12)',
+                  fontFamily: "'Courier New', Courier, monospace",
+                }}>cosmos engine</span>
               </div>
 
-              {/* Cosmic tagline below */}
+              {/* VIGNESH — massive, tracked, white-to-slate */}
               <div style={{
-                fontSize: '9px',
-                letterSpacing: '0.5em',
+                fontSize: 'clamp(3.8rem, 14vw, 11rem)',
+                fontWeight: 900,
+                letterSpacing: '0.18em',
                 textTransform: 'uppercase',
-                color: 'rgba(148,163,184,0.45)',
+                lineHeight: 0.88,
                 fontFamily: "'Helvetica Neue', Arial, sans-serif",
+                background: 'linear-gradient(160deg, #ffffff 0%, #e2e8f0 45%, #94a3b8 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textAlign: 'center',
               }}>
-                cosmos engine &nbsp;·&nbsp; all rights reserved &nbsp;·&nbsp; 2026
+                VIGNESH
               </div>
+
+              {/* Bottom hairline rule */}
+              <div style={{
+                height: '1px',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18) 20%, rgba(255,255,255,0.18) 80%, transparent)',
+                marginTop: '1.75rem',
+                marginBottom: '1.25rem',
+              }} />
+
+              {/* Copyright line */}
+              <div style={{
+                fontSize: '7.5px',
+                letterSpacing: '0.55em',
+                textTransform: 'uppercase',
+                color: 'rgba(255,255,255,0.18)',
+                fontFamily: "'Courier New', Courier, monospace",
+                textAlign: 'center',
+              }}>
+                © 2026 &nbsp; cosmos engine &nbsp;·&nbsp; all rights reserved
+              </div>
+
             </div>
           </VisibilityTracker>
         </div>
