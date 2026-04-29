@@ -31,13 +31,12 @@ const useDragRotation = () => {
         const handleMove = (e: MouseEvent) => {
             if (!isDragging.current) return;
             const dx = e.clientX - prevMouse.current.x;
-            const dy = e.clientY - prevMouse.current.y;
             prevMouse.current = { x: e.clientX, y: e.clientY };
 
-            const len = Math.sqrt(dx * dx + dy * dy);
-            if (len > 0) {
-                const axis = new THREE.Vector3(-dy, dx, 0).normalize();
-                const q = new THREE.Quaternion().setFromAxisAngle(axis, len * 0.005);
+            // Only rotate around the Y axis (horizontal spin) — ignore dy
+            if (Math.abs(dx) > 0) {
+                const axis = new THREE.Vector3(0, 1, 0); // locked to Y
+                const q = new THREE.Quaternion().setFromAxisAngle(axis, dx * 0.005);
                 dragRot.current.premultiply(q);
                 dragRot.current.normalize();
             }
@@ -475,15 +474,13 @@ export const GraphicsCanvas: React.FC<GraphicsCanvasProps> = ({ matrix, started,
                 <Starlights active={isLightOff || false} activeModel={activeModel} />
                 <PointerLight active={!isLightOff} />
                 
-                <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-                    <Suspense fallback={null}>
-                        {activeModel === 'earth' ? (
-                            <Earth matrix={matrix} started={started} hideUI={hideUI} hideAxis={hideAxis} isLightOff={isLightOff} />
-                        ) : (
-                            <Asteroid matrix={matrix} started={started} hideUI={hideUI} hideAxis={hideAxis} />
-                        )}
-                    </Suspense>
-                </Float>
+                <Suspense fallback={null}>
+                    {activeModel === 'earth' ? (
+                        <Earth matrix={matrix} started={started} hideUI={hideUI} hideAxis={hideAxis} isLightOff={isLightOff} />
+                    ) : (
+                        <Asteroid matrix={matrix} started={started} hideUI={hideUI} hideAxis={hideAxis} />
+                    )}
+                </Suspense>
 
                 <Environment preset="city" />
             </Canvas>
