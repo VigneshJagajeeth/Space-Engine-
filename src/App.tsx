@@ -496,83 +496,15 @@ export default function App() {
              </div>
           </VisibilityTracker>
 
-          {/* Footer Section - Dystopian Editorial Signature */}
+          {/* Footer Section - Original */}
           <VisibilityTracker
              id="about"
-             className="min-h-[100dvh] flex flex-col items-center justify-end pb-20 md:pb-28 pointer-events-none text-center relative z-20"
+             className="min-h-[100dvh] flex flex-col items-center justify-end pb-24 md:pb-32 pointer-events-none text-center relative z-20"
              onVisible={() => { setActiveAlign('center'); setActiveSection('footer'); }}
           >
-            <div className="pointer-events-auto animate-fade-in w-full px-8 md:px-20" style={{ maxWidth: '1100px', margin: '0 auto' }}>
-
-              {/* Top hairline rule */}
-              <div style={{
-                height: '1px',
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18) 20%, rgba(255,255,255,0.18) 80%, transparent)',
-                marginBottom: '1.75rem',
-              }} />
-
-              {/* Label row */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '0.6rem',
-              }}>
-                <span style={{
-                  fontSize: '8px',
-                  letterSpacing: '0.55em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.22)',
-                  fontFamily: "'Courier New', Courier, monospace",
-                  fontWeight: 400,
-                }}>made by</span>
-                <span style={{
-                  fontSize: '8px',
-                  letterSpacing: '0.4em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.12)',
-                  fontFamily: "'Courier New', Courier, monospace",
-                }}>cosmos engine</span>
-              </div>
-
-              {/* VIGNESH — massive, tracked, white-to-slate */}
-              <div style={{
-                fontSize: 'clamp(3.8rem, 14vw, 11rem)',
-                fontWeight: 900,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                lineHeight: 0.88,
-                fontFamily: "'Helvetica Neue', Arial, sans-serif",
-                background: 'linear-gradient(160deg, #ffffff 0%, #e2e8f0 45%, #94a3b8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                textAlign: 'center',
-              }}>
-                VIGNESH
-              </div>
-
-              {/* Bottom hairline rule */}
-              <div style={{
-                height: '1px',
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18) 20%, rgba(255,255,255,0.18) 80%, transparent)',
-                marginTop: '1.75rem',
-                marginBottom: '1.25rem',
-              }} />
-
-              {/* Copyright line */}
-              <div style={{
-                fontSize: '7.5px',
-                letterSpacing: '0.55em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.18)',
-                fontFamily: "'Courier New', Courier, monospace",
-                textAlign: 'center',
-              }}>
-                © 2026 &nbsp; cosmos engine &nbsp;·&nbsp; all rights reserved
-              </div>
-
-            </div>
+              <h2 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-t from-white/10 via-white/50 to-white/80 drop-shadow-[0_0_30px_rgba(255,255,255,0.15)] mix-blend-screen animate-fade-in pointer-events-auto">
+                 MADE BY<br/>VIGNESH
+              </h2>
           </VisibilityTracker>
         </div>
       )}
